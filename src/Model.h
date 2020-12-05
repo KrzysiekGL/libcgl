@@ -19,6 +19,7 @@ namespace CGL {
 
 	class Model {
 	public:
+		Model() {}
 		Model(std::string path);
 		~Model();
 
