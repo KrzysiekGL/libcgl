@@ -1,0 +1,7 @@
+# eclipse project settings
+.settings
+.cproject
+.project
+
+# cpp specific files
+*.[oad]
