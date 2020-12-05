@@ -1,4 +1,4 @@
-# CGL - Chris OpenGL rendering library
+# CGL - Chris enGine OpenGl
 ---
 Current state of this library is heavily WIP, but it works. For me at least.
 
