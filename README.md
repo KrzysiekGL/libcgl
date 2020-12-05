@@ -9,6 +9,9 @@ To build this library, go under Debug dir, and do the following:
 $ make all
 ```
 
+If you don't want to build it yourself, you can download already build version of libCGL.a from release.
+(Curently builded only for LinuxGCC).
+
 You will get then a `libCGL.a` static library file which you can use in your project.
 In the `include` are stored symlinks to all `src/*.h` header files.
 
