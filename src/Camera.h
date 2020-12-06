@@ -9,6 +9,8 @@
 namespace CGL {
 	class Camera {
 	public:
+		Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed);
+		Camera(glm::vec3 cameraPos);
 		Camera();
 		~Camera();
 
