@@ -1,16 +1,29 @@
 #include "Camera.h"
 namespace CGL {
 
-	Camera::Camera() : cameraSpeed(2.f), cameraSensitivity(.1f), pitch(0.f), yaw(-90.f), cameraPos(glm::vec3(0.f, 0.f, 2.f)) {
-		// Initialize camera vectors
-		// camera reverse direction - assume that camera initially is looking at the origin of the world
-		glm::vec3 target = glm::vec3(0.f);
-		cameraRevDir = glm::normalize(cameraPos - target);
-		// camera right
-		glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f);
-		cameraRight = glm::normalize(glm::cross(worldUp, cameraRevDir));
-		// camera up
-		cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
+	Camera::Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed)
+		: cameraPos(cameraPos),
+		  pitch(pitch), yaw(yaw),
+		  cameraSensitivity(camSensitivity),
+		  cameraSpeed(camSpeed)
+	{
+	// Initialize camera vectors
+	// camera reverse direction - assume that camera initially is looking at the origin of the world
+	glm::vec3 target = glm::vec3(0.f);
+	cameraRevDir = glm::normalize(cameraPos - target);
+	// camera right
+	glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f);
+	cameraRight = glm::normalize(glm::cross(worldUp, cameraRevDir));
+	// camera up
+	cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
+	}
+
+	Camera::Camera(glm::vec3 cameraPos) { // @suppress("Class members should be properly initialized")
+		Camera(cameraPos, 0.f, -90.f, .1f, 2.f);
+	}
+
+	Camera::Camera() { // @suppress("Class members should be properly initialized")
+		Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f);
 	}
 
 	Camera::~Camera() {}
