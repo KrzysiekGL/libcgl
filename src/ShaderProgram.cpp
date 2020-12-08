@@ -4,7 +4,7 @@ namespace CGL {
 	ShaderProgram::ShaderProgram() {
 		ID = 0;
 	#ifdef _DEBUG
-		std::cout << "ShaderProgram instansiated, but shader program itself not compiled and created.\n";
+		std::cout << "ShaderProgram instantiated, but shader program itself not compiled and created.\n";
 	#endif // _DEBUG
 	}
 
@@ -42,7 +42,7 @@ namespace CGL {
 		}
 		else {
 	#ifdef _DEBUG
-			std::cout << "ERRORR::IFSTREAM::Coudl not open file " << filePath << std::endl;
+			std::cout << "ERRORR::IFSTREAM::Could not open file " << filePath << std::endl;
 	#endif // _DEBUG
 			file.close();
 			return 0;
