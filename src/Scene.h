@@ -49,7 +49,7 @@ public:
 	Scene(Camera camera);
 	virtual ~Scene();
 
-	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram);
+	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram shaderProgram);
 	void AddShaderProgram(std::string shaderProgram_name, std::string vertex_source, std::string fragmen_source);
 
 	void AddActor(std::string actor_name, Model model);

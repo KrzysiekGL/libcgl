@@ -1,5 +1,5 @@
 #ifndef CAMERAH
-#define CAMERA
+#define CAMERAH
 
 #include <GLFW/glfw3.h>
 
