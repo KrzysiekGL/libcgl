@@ -1,39 +1,32 @@
-/*
- * Scen.cpp
- *
- *  Created on: Dec 5, 2020
- *      Author: code
- */
-
-#include "Scen.h"
+#include "Scene.h"
 
 namespace CGL {
 
-Scen::Scen() {
+Scene::Scene() {
 	freeCam = false;
 	scr_width = 0.f;
 	scr_height = 0.f;
 }
 
-Scen::Scen(Camera camera) : camera(camera) {
+Scene::Scene(Camera camera) : camera(camera) {
 	freeCam = false;
 	scr_width = 0.f;
 	scr_height = 0.f;
 }
 
-Scen::~Scen() {
+Scene::~Scene() {
 	// TODO Auto-generated destructor stub
 }
 
-void Scen::AddShaderProgram(ShaderProgram shaderProgram) {
+void Scene::AddShaderProgram(ShaderProgram shaderProgram) {
 	shaderPrograms.push_back(shaderProgram);
 }
 
-ShaderProgram* Scen::GetShaderProgram(unsigned int index) {
+ShaderProgram& Scene::GetShaderProgram(unsigned int index) {
 	return &shaderPrograms[index];
 }
 
-void Scen::AddActor(Model model, ShaderProgram* shaderProgram, glm::mat4 modelMatrix) {
+void Scene::AddActor(Model model, ShaderProgram* shaderProgram, glm::mat4 modelMatrix) {
 	Actor actor;
 	actor.model = model;
 	actor.modelMatrix = modelMatrix;
@@ -41,15 +34,15 @@ void Scen::AddActor(Model model, ShaderProgram* shaderProgram, glm::mat4 modelMa
 	actors.push_back(actor);
 }
 
-void Scen::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
+void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
 	this->freeCam = freeCam;
-	updateScenParameters(window);
+	updateSceneParameters(window);
 	handleKeyboardInput(window, deltaTime);
 	handleMouseInput(window);
 	draw();
 }
 
-void Scen::updateScenParameters(GLFWwindow* window) {
+void Scene::updateSceneParameters(GLFWwindow* window) {
 	// update scr_width and scr_height fields
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -57,7 +50,7 @@ void Scen::updateScenParameters(GLFWwindow* window) {
 	scr_height = (float)height;
 }
 
-void Scen::handleKeyboardInput(GLFWwindow* window, float deltaFrame){
+void Scene::handleKeyboardInput(GLFWwindow* window, float deltaFrame){
 	// for moving a camera
 	if(freeCam) camera.KeyInputProcess(window, deltaFrame);
 	else {
@@ -65,12 +58,12 @@ void Scen::handleKeyboardInput(GLFWwindow* window, float deltaFrame){
 	}
 }
 
-void Scen::handleMouseInput(GLFWwindow* window) {
+void Scene::handleMouseInput(GLFWwindow* window) {
 	// for moving a camera
 	if(freeCam) camera.MouseInputProcess(window);
 }
 
-void Scen::draw() {
+void Scene::draw() {
 	ShaderProgram shaderProg;
 
 	glm::mat4 viewMatrix = camera.GetViewMatrix();
