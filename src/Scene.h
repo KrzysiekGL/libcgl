@@ -7,11 +7,14 @@
  *
  * To create a simple Scene and run it, do the following:
  * 1. Create a Scene with a Camera as a parameter
- * 2. Add a ShaderProgram
- * 3. Add an actor with a Model as a parameter and a reference
- *    to a ShaderProgram from the Scene object (may be that one from the previous step)
- * 4. Run cycle of the Scene with RunScene() (normally inside your "Game Loop")
+ * 2. Add a ShaderProgram with it's name
+ * 3. Add an Actor with a Model as parameter and a name of the Actor
+ * 4. Add an ActorCopy for an added Actor
+ *    Provide model matrix and a name of the previously added ShaderProgram
+ * 5. Run cycle of the Scene with RunScene() (normally inside your "Game Loop")
  */
+
+// TODO add more comments inside this header
 
 #ifndef SCENE_H_
 #define SCENE_H_
@@ -25,14 +28,19 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-
+#include <map>
+#include <iterator>
 
 namespace CGL {
-// TODO add properties for copies of an actor
+
+struct ActorCopy  {
+	glm::mat4 modelMatrix;
+	std::map<std::string, ShaderProgram>::iterator shaderProgram;
+};
+
 struct Actor {
 	Model model;
-	glm::mat4 modelMatrix;
-	ShaderProgram& shaderProgram;
+	std::vector<ActorCopy> instances;
 };
 
 class Scene {
@@ -41,15 +49,22 @@ public:
 	Scene(Camera camera);
 	virtual ~Scene();
 
-	void AddShaderProgram(ShaderProgram shaderProgram);
-	ShaderProgram& GetShaderProgram(unsigned int index);
-	void AddActor(Model model, ShaderProgram* shaderProgram, glm::mat4 modelMatrix = glm::mat4(1.f));
+	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram);
+	void AddShaderProgram(std::string shaderProgram_name, std::string vertex_source, std::string fragmen_source);
+
+	void AddActor(std::string actor_name, Model model);
+	void AddActor(std::string actor_name, std::string model_path);
+
+	void AddActorCopy(std::string actor_name, std::string shaderProgram_name, glm::mat4 model_matrix = glm::mat4(1.f));
 
 	void RunScene(GLFWwindow* window, float deltaFrame, bool freeCam);
 
+	std::vector<std::string> GetShaderProgramNames();
+	std::vector<std::string> GetActorNames();
+
 private:
-	std::vector<Actor> actors;
-	std::vector<ShaderProgram> shaderPrograms;
+	std::map<std::string, Actor> actors;
+	std::map<std::string, ShaderProgram> shaderPrograms;
 	Camera camera;
 	bool freeCam;
 	float scr_width; float scr_height;

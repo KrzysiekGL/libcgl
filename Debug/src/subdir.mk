@@ -7,21 +7,21 @@ CPP_SRCS += \
 ../src/Camera.cpp \
 ../src/Mesh.cpp \
 ../src/Model.cpp \
-../src/Scen.cpp \
+../src/Scene.cpp \
 ../src/ShaderProgram.cpp 
 
 OBJS += \
 ./src/Camera.o \
 ./src/Mesh.o \
 ./src/Model.o \
-./src/Scen.o \
+./src/Scene.o \
 ./src/ShaderProgram.o 
 
 CPP_DEPS += \
 ./src/Camera.d \
 ./src/Mesh.d \
 ./src/Model.d \
-./src/Scen.d \
+./src/Scene.d \
 ./src/ShaderProgram.d 
 
 
