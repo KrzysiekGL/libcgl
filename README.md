@@ -21,7 +21,7 @@ All of used libraries to compile CGL and/or application using CGL are:
 └── libsoil2.a
 ```
 And few more installed with linux package manager:
-- GL # if on windows, this is the only one required from thees
+- GL # if on windows, this is the only one required from these
 - dl
 - X11
 - pthread
