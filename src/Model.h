@@ -43,6 +43,7 @@ namespace CGL {
 	class Model {
 	public:
 		/* Load a 3D model binary from given path */
+		Model() {}
 		Model(std::string path);
 		~Model();
 

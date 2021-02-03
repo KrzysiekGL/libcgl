@@ -6,7 +6,7 @@
  * - handle keyboard and mouse input to modify camera parameters accordingly
  */
 #ifndef CAMERAH
-#define CAMERA
+#define CAMERAH
 
 #include <GLFW/glfw3.h>
 
@@ -17,6 +17,8 @@ namespace CGL {
 	class Camera {
 	public:
 		/* Create a camera and assign default parameter's values */
+		Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed);
+		Camera(glm::vec3 cameraPos);
 		Camera();
 		~Camera();
 
@@ -66,4 +68,4 @@ namespace CGL {
 	};
 } // namespace CGL
 
-#endif // !CAMERAH 
+#endif // !CAMERAH
