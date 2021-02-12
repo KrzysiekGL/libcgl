@@ -80,7 +80,7 @@ void Scene::handleKeyboardInput(GLFWwindow* window, float deltaFrame){
 	// for moving a camera
 	if(freeCam) camera.KeyInputProcess(window, deltaFrame);
 	else {
-		// TODO control over a actor
+		// TODO control over an actor
 	}
 }
 

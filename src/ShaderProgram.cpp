@@ -4,7 +4,7 @@ namespace CGL {
 	ShaderProgram::ShaderProgram() {
 		ID = 0;
 	#ifdef _DEBUG
-		std::cout << "ShaderProgram instansiated, but shader program itself not compiled and created.\n";
+		std::cout << "ShaderProgram instantiated, but shader program itself not compiled and created.\n";
 	#endif // _DEBUG
 	}
 

@@ -2,10 +2,10 @@
 namespace CGL {
 
 	Camera::Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed)
-		: cameraPos(cameraPos),
-		  pitch(pitch), yaw(yaw),
+		: cameraSpeed(camSpeed),
 		  cameraSensitivity(camSensitivity),
-		  cameraSpeed(camSpeed)
+		  pitch(pitch), yaw(yaw),
+		  cameraPos(cameraPos)
 	{
 	// Initialize camera vectors
 	// camera reverse direction - assume that camera initially is looking at the origin of the world
@@ -18,11 +18,21 @@ namespace CGL {
 	cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
 	}
 
-	Camera::Camera(glm::vec3 cameraPos) { // @suppress("Class members should be properly initialized")
+	Camera::Camera(glm::vec3 cameraPos)
+		: cameraSpeed(2.f),
+		  cameraSensitivity(.1f),
+		  pitch(0.f), yaw(-90.f),
+		  cameraPos(cameraPos)
+	{
 		Camera(cameraPos, 0.f, -90.f, .1f, 2.f);
 	}
 
-	Camera::Camera() { // @suppress("Class members should be properly initialized")
+	Camera::Camera()
+		: cameraSpeed(2.f),
+		  cameraSensitivity(.1f),
+		  pitch(0.f), yaw(-90.f),
+		  cameraPos(glm::vec3(0.f, 0.f, 2.f))
+	{
 		Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f);
 	}
 
@@ -35,7 +45,7 @@ namespace CGL {
 	}
 
 	void Camera::KeyInputProcess(GLFWwindow* window, float deltaTime) {
-		// Forward, Backward and strafe
+		// Forward, Backward and strife
 		// forward
 		if (glfwGetKey(window, GLFW_KEY_W))
 			cameraPos -= deltaTime * cameraSpeed * cameraRevDir;
