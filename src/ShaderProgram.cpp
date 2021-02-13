@@ -42,7 +42,7 @@ namespace CGL {
 		}
 		else {
 	#ifdef _DEBUG
-			std::cout << "ERRORR::IFSTREAM::Coudl not open file " << filePath << std::endl;
+			std::cout << "ERRORR::IFSTREAM::Could not open file " << filePath << std::endl;
 	#endif // _DEBUG
 			file.close();
 			return 0;

@@ -75,6 +75,6 @@ private:
 	void handleMouseInput(GLFWwindow* window);
 };
 
-} /* namespace CGL */
+} // namespace CGL
 
-#endif /* SCENE_H_ */
+#endif // SCENE_H_
