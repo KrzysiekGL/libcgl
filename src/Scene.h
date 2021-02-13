@@ -36,6 +36,8 @@ struct Actor {
 	std::map<std::string, Model>::iterator modelIterator;
 	std::map<std::string, ShaderProgram>::iterator shaderProgramIterator;
 	glm::mat4 modelMatrix;
+	// TODO Add actor collection sorting with regard to transparency
+	bool transparent;
 };
 
 class Scene {
@@ -55,6 +57,7 @@ public:
 	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram shaderProgram);
 	void AddModel(std::string model_name, Model model);
 
+	// TODO Add method to modify Actor's model matrix
 	/*
 	 * This method adds Actor to the scene.
 	 * Both Model and ShaderProgram objects has to be present at the time

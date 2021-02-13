@@ -2,6 +2,7 @@
 
 namespace CGL {
 
+// - Constructors & Destructors
 Scene::Scene() {
 	freeCam = false;
 	scr_width = 0.f;
@@ -16,44 +17,65 @@ Scene::Scene(Camera camera) : camera(camera) {
 
 Scene::~Scene() {
 }
+// -  END Constructors & Destructors
 
+// - Public Methods
 void Scene::AddShaderProgram(std::string name, ShaderProgram shaderProgram) {
-	shaderPrograms[name] = shaderProgram;
+	shaderProgramCollection[name] = shaderProgram;
 }
 
-void Scene::AddShaderProgram(std::string name, std::string vert, std::string frag) {
-	AddShaderProgram(name, ShaderProgram(vert.c_str(), frag.c_str()));
-}
-// TODO Change AddActor() so it automatically checks for existing actors and creates ActorCopy
-void Scene::AddActor(std::string actor_name, Model model) {
-	Actor actor;
-	actor.model = model;
-
-	actors[actor_name] = actor;
+void Scene::AddModel(std::string name, Model model) {
+	modelCollection[name] = model;
 }
 
-void Scene::AddActor(std::string actor_name, std::string model_path) {
-	AddActor(actor_name, Model(model_path));
-}
-
-
-void Scene::AddActorCopy(std::string actorName, std::string shaderProgName, glm::mat4 modelMatrix) {
-	// create a copy of the Actor
-	ActorCopy actorCopy;
-
-	std::map<std::string, ShaderProgram>::iterator it = shaderPrograms.find(shaderProgName);
-	if(it != shaderPrograms.end())
-		actorCopy.shaderProgram = it;
-	else {
+bool Scene::AddActor(std::string model_name, std::string shaderProgram_name) {
+	// Search if there are model_name and shaderProgram_name present
+	std::map<std::string, Model>::iterator mit = modelCollection.find(model_name);
+	if(mit == modelCollection.end()){
 #ifdef _DEBUG
-		printf("ERROR::SCENE::No %s ShaderProgram exist", shaderProgName);
+		printf("ERROR::SCENE No %s Model found in the scene", model_name);
 #endif //_DEBUG
-		return;
+		return false;
+	}
+	std::map<std::string, ShaderProgram>::iterator spit = shaderProgramCollection.find(shaderProgram_name);
+	if(spit == shaderProgramCollection.end()){
+#ifdef _DEBUG
+		printf("ERROR::SCENE No %s ShaderProgram found in the Scene", shaderProgram_name);
+#endif
+		return false;
 	}
 
-	actorCopy.modelMatrix = modelMatrix;
+	/*
+	 * If both are present, then create a new Actor,
+	 * generate a name and put it into collection
+	 */
+	Actor actor; std::string actor_name = model_name;
 
-	actors[actorName].instances.push_back(actorCopy);
+	// parameters
+	actor.modelIterator = mit;
+	actor.shaderProgramIterator = spit;
+	actor.modelMatrix = glm::mat4(1.f);
+	actor.transparent = false;
+
+	// name
+	/*
+ 	 * Iterate over actor collection, and search for how
+ 	 * many actors has the same model. Then modify actor_name
+ 	 * so it has another number with regard to how many actors
+ 	 * with the same model there are.
+ 	 * For example: if there are already 3 actors with model "box"
+ 	 * then change actor_name from "box" to "box-3" (counting from 0)
+	 */
+	unsigned int number = 0;
+	for(std::pair<std::string, Actor> a : actorCollection)
+		if(a.second.modelIterator == mit)
+			number++;
+	actor_name = actor_name+"-"+std::to_string(number);
+
+	// add Actor to collection
+	actorCollection[actor_name] = actor;
+
+	return true;
 }
 
 void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
@@ -68,6 +90,40 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
 	draw();
 }
 
+// -- Getters
+std::vector<std::string> Scene::GetShaderProgramCollectionNames() {
+	std::vector<std::string> names;
+	std::map<std::string, ShaderProgram>::iterator it = shaderProgramCollection.begin();
+	while(it != shaderProgramCollection.end()) {
+		names.push_back(it->first);
+		it++;
+	}
+	return names;
+}
+
+std::vector<std::string> Scene::GetModelCollectionNames() {
+	std::vector<std::string> names;
+	std::map<std::string, Model>::iterator it = modelCollection.begin();
+	while(it != modelCollection.end()) {
+		names.push_back(it->first);
+		it++;
+	}
+	return names;
+}
+
+std::vector<std::string> Scene::GetActorCollectionNames() {
+	std::vector<std::string> names;
+	std::map<std::string, Actor>::iterator it = actorCollection.begin();
+	while(it != actorCollection.end()) {
+		names.push_back(it->first);
+		it++;
+	}
+	return names;
+}
+// -- END Getters
+// - END Public Methods
+
+// - Private Methods
 void Scene::updateSceneParameters(GLFWwindow* window) {
 	// update scr_width and scr_height fields
 	int width, height;
@@ -90,52 +146,28 @@ void Scene::handleMouseInput(GLFWwindow* window) {
 }
 
 void Scene::draw() {
-	ShaderProgram shaderProg;
-
+	// Get view and projection matrices for current frame from the Camera
 	glm::mat4 viewMatrix = camera.GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
-	std::map<std::string, Actor>::iterator it = actors.begin();
-	// Iterate over all actors
-	while(it != actors.end()){
-		// Iterate over all instances of an actor and render each one of them
-		Actor actor = it->second;
-		for (ActorCopy &AC : actor.instances) {
-			shaderProg = AC.shaderProgram->second;
+	// Iterate over all actors from collection and render them
+	for(std::pair<std::string, Actor> element : actorCollection){
+		// Prepare handles for Model and ShaderProgram
+		const Actor actor = element.second;
+		std::map<std::string, Model>::iterator mit = actor.modelIterator;
+		std::map<std::string, ShaderProgram>::iterator spit = actor.shaderProgramIterator;
 
-			shaderProg.SetUniformMatrix4f("model", AC.modelMatrix);
-			shaderProg.SetUniformMatrix4f("view", viewMatrix);
-			shaderProg.SetUniformMatrix4f("projection", projectionMatrix);
+		// Get Model and ShaderProgram; Set parameters and render model
+		Model* model = &mit->second;
+		ShaderProgram* shader = &spit->second;
 
-			actor.model.Draw(shaderProg);
-		}
-		it++;
+		shader->SetUniformMatrix4f("model", actor.modelMatrix);
+		shader->SetUniformMatrix4f("view", viewMatrix);
+		shader->SetUniformMatrix4f("projection", projectionMatrix);
+
+		model->Draw(*shader);
 	}
 }
-
-/* Getters */
-std::vector<std::string> Scene::GetShaderProgramNames() {
-	std::vector<std::string> shaderProgNames;
-
-	std::map<std::string, ShaderProgram>::iterator it = shaderPrograms.begin();
-	while(it != shaderPrograms.end()) {
-		shaderProgNames.push_back(it->first);
-		it++;
-	}
-
-	return shaderProgNames;
-}
-
-std::vector<std::string> Scene::GetActorNames() {
-	std::vector<std::string> actorNames;
-
-	std::map<std::string, Actor>::iterator it = actors.begin();
-	while(it != actors.end()) {
-		actorNames.push_back(it->first);
-		it++;
-	}
-
-	return actorNames;
-}
+// - END Private Methods
 
 } /* namespace CGL */
