@@ -1,20 +1,19 @@
 /*
- * Scene class was designed to arrange and manipulate actors (Model objects)
- * - add an actor as a base Model
- * - modify the actor by adding another copies/iterations of it with personalized parameters
+ * Scene class was designed to arrange and manipulate actors. An Actor is a Model associated with
+ * a ShaderProgram with witch it should be rendered and a Model Matrix to modify it's position in the "world space".
+ *
+ * - add a Model
+ * - add a ShaderProgram
+ * - create a new Actor (optionally with a model matrix)
  * - Scene object has it's own Camera object, thus It also have to pass to it's Camera any control input
- * - Scene object also holds all of ShaderPrograms that are ought to be used with it's actors
  *
  * To create a simple Scene and run it, do the following:
- * 1. Create a Scene with a Camera as a parameter
- * 2. Add a ShaderProgram with it's name
- * 3. Add an Actor with a Model as parameter and a name of the Actor
- * 4. Add an ActorCopy for an added Actor
- *    Provide model matrix and a name of the previously added ShaderProgram
+ * 1. create a Scene with a Camera as a parameter
+ * 2. add a Model with it's name
+ * 3. add a ShaderProgram with it's name
+ * 4. create a new Actor wit added Model and ShaderProgram
  * 5. Run cycle of the Scene with RunScene() (normally inside your "Game Loop")
  */
-
-// TODO add more comments inside this header
 
 #ifndef SCENE_H_
 #define SCENE_H_
@@ -33,45 +32,98 @@
 
 namespace CGL {
 
-struct ActorCopy  {
-	glm::mat4 modelMatrix;
-	std::map<std::string, ShaderProgram>::iterator shaderProgram;
-};
-
 struct Actor {
-	Model model;
-	std::vector<ActorCopy> instances;
+	std::map<std::string, Model>::iterator modelIterator;
+	std::map<std::string, ShaderProgram>::iterator shaderProgramIterator;
+	glm::mat4 modelMatrix;
 };
 
 class Scene {
 public:
+
+	/*
+	 * Scene consists of a Camera object and screen size parameters.
+	 */
 	Scene();
 	Scene(Camera camera);
-	virtual ~Scene();
+	~Scene();
 
+	/*
+	 * ShaderPrograms are stored in shaderColleciton map and Models are stored in modelCollection map.
+	 * Each ShaderProgram and Model is associated with a name.
+	 */
 	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram shaderProgram);
-	void AddShaderProgram(std::string shaderProgram_name, std::string vertex_source, std::string fragmen_source);
+	void AddModel(std::string model_name, Model model);
 
-	void AddActor(std::string actor_name, Model model);
-	void AddActor(std::string actor_name, std::string model_path);
+	/*
+	 * This method adds Actor to the scene.
+	 * Both Model and ShaderProgram objects has to be present at the time
+	 * of calling AddActor().
+	 * If Model/ShaderProgram with the given name doesn't exist,
+	 * `false` will be returned, otherwise `true`.
+	 */
+	bool AddActor(std::string model_name, std::string shader_name);
 
-	void AddActorCopy(std::string actor_name, std::string shaderProgram_name, glm::mat4 model_matrix = glm::mat4(1.f));
-
+	// TODO Implement physics somewhere over here
+	// TODO Integrate UI
+	/*
+	 * Update information about screen, process input events,
+	 * render all actors.
+	 */
 	void RunScene(GLFWwindow* window, float deltaFrame, bool freeCam);
 
-	std::vector<std::string> GetShaderProgramNames();
-	std::vector<std::string> GetActorNames();
+
+	/*
+	 * Get names of ShaderPrograms/Models/Actors loaded into scene
+	 */
+	std::vector<std::string> GetShaderProgramCollectionNames();
+	std::vector<std::string> GetModelCollectionNames();
+	std::vector<std::string> GetActorCollectionNames();
 
 private:
-	std::map<std::string, Actor> actors;
-	std::map<std::string, ShaderProgram> shaderPrograms;
+	/*
+	 * Collection of loaded Models/ShaderPrograms/Actors into scene in form
+	 * of a map {std::string, T}
+	 */
+	std::map<std::string, Model> modelCollection;
+	std::map<std::string, ShaderProgram> shaderProgramCollection;
+	std::map<std::string, Actor> actorCollection;
+
+	/*
+	 * Camera object (and freeCam mode flag) to move in a scene
+	 * and interact with it.
+	 */
 	Camera camera;
 	bool freeCam;
+
+	/*
+	 * Screen width and height from GLFW frame buffer
+	 * for calculating projection matrix.
+	 */
 	float scr_width; float scr_height;
 
+	/*
+	 * Draw all actors with respect of their model matrices.
+	 */
 	void draw();
+
+	/*
+	 * Get screen size from GLFW frame buffer.
+	 */
 	void updateSceneParameters(GLFWwindow* window);
+
+	// TODO Modify scene with keyboard
+	/*
+	 * In freeCam mode pass keyboard input to a Camera object.
+	 * Otherwise take control over Actors and Scene.
+	 */
 	void handleKeyboardInput(GLFWwindow* window, float deltaTime);
+
+	// TODO Mouse picking with Camera object
+	/*
+	 * In freeCam mode pass mouse input to a Camera object.
+	 * Otherwise take control over Actors and Scene.
+	 */
 	void handleMouseInput(GLFWwindow* window);
 };
 
