@@ -16,6 +16,7 @@ namespace CGL {
 
 		glm::mat4 GetViewMatrix();
 		void KeyInputProcess(GLFWwindow* window, float deltaTime);
+		// TODO Implement mouse picking
 		void MouseInputProcess(GLFWwindow* window);
 
 	private:

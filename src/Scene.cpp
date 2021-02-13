@@ -24,7 +24,7 @@ void Scene::AddShaderProgram(std::string name, ShaderProgram shaderProgram) {
 void Scene::AddShaderProgram(std::string name, std::string vert, std::string frag) {
 	AddShaderProgram(name, ShaderProgram(vert.c_str(), frag.c_str()));
 }
-
+// TODO Change AddActor() so it automatically checks for existing actors and creates ActorCopy
 void Scene::AddActor(std::string actor_name, Model model) {
 	Actor actor;
 	actor.model = model;
