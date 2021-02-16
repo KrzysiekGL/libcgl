@@ -44,7 +44,6 @@ namespace CGL {
 		 * Creates a mesh from given vertices, indices (for rendering order) and textures
 		 */
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		~Mesh();
 
 		/*
 		 * Render a mesh using given ShaderProgram

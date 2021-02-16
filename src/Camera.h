@@ -22,7 +22,6 @@ namespace CGL {
 		Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed);
 		Camera(glm::vec3 cameraPos);
 		Camera();
-		~Camera();
 
 		/*
 		 * Get the VIEW MATRIX from a camera

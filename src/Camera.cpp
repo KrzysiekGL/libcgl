@@ -1,6 +1,7 @@
 #include "Camera.h"
 namespace CGL {
 
+// - Ctors & Dtors
 	Camera::Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed)
 		: cameraSpeed(camSpeed),
 		  cameraSensitivity(camSensitivity),
@@ -18,26 +19,12 @@ namespace CGL {
 	cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
 	}
 
-	Camera::Camera(glm::vec3 cameraPos)
-		: cameraSpeed(2.f),
-		  cameraSensitivity(.1f),
-		  pitch(0.f), yaw(-90.f),
-		  cameraPos(cameraPos)
-	{
-		Camera(cameraPos, 0.f, -90.f, .1f, 2.f);
-	}
+	Camera::Camera(glm::vec3 cameraPos) : Camera(cameraPos, 0.f, -90.f, .1f, 2.f) {}
 
-	Camera::Camera()
-		: cameraSpeed(2.f),
-		  cameraSensitivity(.1f),
-		  pitch(0.f), yaw(-90.f),
-		  cameraPos(glm::vec3(0.f, 0.f, 2.f))
-	{
-		Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f);
-	}
+	Camera::Camera() : Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f) {}
+// - END Cotrs & Dotrs
 
-	Camera::~Camera() {}
-
+// - Public Methods
 	glm::mat4 Camera::GetViewMatrix() {
 		glm::vec3 target = cameraPos - cameraRevDir;
 		glm::mat4 view = glm::lookAt(cameraPos, target, cameraUp);
@@ -87,7 +74,9 @@ namespace CGL {
 		cameraRevDir = glm::normalize(-newDirection);
 		updateCameraVectors();
 	}
+// - END Public Methods
 
+// - Private Methods
 	void Camera::updateCameraVectors() {
 		// camera right
 		glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f);
@@ -95,4 +84,6 @@ namespace CGL {
 		// camera up
 		cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
 	}
+// - END Private Methods
+
 } // namespace CGL

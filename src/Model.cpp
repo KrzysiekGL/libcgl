@@ -2,18 +2,53 @@
 
 namespace CGL {
 
+// - Ctors & Dtors
 	Model::Model(std::string path) {
 		loadModel(path);
 	}
+// - END Ctors & Dtors
 
-	Model::~Model() {
-	}
-
+// - Public Methods
 	void Model::Draw(ShaderProgram shader) {
 		for (Mesh& mesh : meshes)
 			mesh.Draw(shader);
 	}
 
+	unsigned int TextureFromFile(const char* file, const std::string directory, bool gamma) {
+		std::string path = directory + '/' + std::string(file);
+
+		unsigned int textureID = SOIL_load_OGL_texture(
+			path.c_str(),
+			SOIL_LOAD_AUTO,
+			SOIL_CREATE_NEW_ID,
+			SOIL_FLAG_MIPMAPS |
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+			SOIL_FLAG_INVERT_Y |
+	#endif
+			SOIL_FLAG_NTSC_SAFE_RGB |
+			SOIL_FLAG_COMPRESS_TO_DXT
+		);
+
+	#ifdef _DEBUG
+		if (textureID == 0) {
+			printf("ERROR::SOIL2::LOADING: '%s'\n", SOIL_last_result());
+			return textureID;
+		}
+	#endif // _DEBUG
+		if (!textureID) {
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+
+		return textureID;
+	}
+// - END Public Methods
+
+// - Private Methods
 	void Model::loadModel(std::string path) {
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(
@@ -132,37 +167,6 @@ namespace CGL {
 
 		return textures;
 	}
+// - END Private Methods
 
-	unsigned int TextureFromFile(const char* file, const std::string directory, bool gamma) {
-		std::string path = directory + '/' + std::string(file);
-
-		unsigned int textureID = SOIL_load_OGL_texture(
-			path.c_str(),
-			SOIL_LOAD_AUTO,
-			SOIL_CREATE_NEW_ID,
-			SOIL_FLAG_MIPMAPS |
-	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-			SOIL_FLAG_INVERT_Y |
-	#endif
-			SOIL_FLAG_NTSC_SAFE_RGB |
-			SOIL_FLAG_COMPRESS_TO_DXT
-		);
-
-	#ifdef _DEBUG
-		if (textureID == 0) {
-			printf("ERROR::SOIL2::LOADING: '%s'\n", SOIL_last_result());
-			return textureID;
-		}
-	#endif // _DEBUG
-		if (!textureID) {
-			glBindTexture(GL_TEXTURE_2D, textureID);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-
-		return textureID;
-	}
 } // namespace CGL

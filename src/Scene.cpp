@@ -15,8 +15,6 @@ Scene::Scene(Camera camera) : camera(camera) {
 	scr_height = 0.f;
 }
 
-Scene::~Scene() {
-}
 // -  END Constructors & Destructors
 
 // - Public Methods

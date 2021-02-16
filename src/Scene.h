@@ -48,7 +48,6 @@ public:
 	 */
 	Scene();
 	Scene(Camera camera);
-	~Scene();
 
 	/*
 	 * ShaderPrograms are stored in shaderColleciton map and Models are stored in modelCollection map.
