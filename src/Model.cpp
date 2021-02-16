@@ -25,9 +25,9 @@ namespace CGL {
 		);
 
 		if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode) {
-	#ifdef _DEBUG
+#ifdef _DEBUG
 			std::cout << "ERROR:ASSIMP::" << importer.GetErrorString() << std::endl;
-	#endif //_DEBUG
+#endif //_DEBUG
 			return;
 		}
 

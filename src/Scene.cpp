@@ -33,14 +33,14 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name) {
 	std::map<std::string, Model>::iterator mit = modelCollection.find(model_name);
 	if(mit == modelCollection.end()){
 #ifdef _DEBUG
-		printf("ERROR::SCENE No %s Model found in the scene", model_name);
+		std::cout << "ERROR::SCENE No " << model_name << " Model found in the scene\n";
 #endif //_DEBUG
 		return false;
 	}
 	std::map<std::string, ShaderProgram>::iterator spit = shaderProgramCollection.find(shaderProgram_name);
 	if(spit == shaderProgramCollection.end()){
 #ifdef _DEBUG
-		printf("ERROR::SCENE No %s ShaderProgram found in the Scene", shaderProgram_name);
+		std::cout << "ERROR::SCENE No " << shaderProgram_name << " ShaderProgram found in the Scene\n";
 #endif
 		return false;
 	}

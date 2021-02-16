@@ -15,8 +15,7 @@ namespace CGL {
 		addShaderToProgram(fragmentFile, ShaderType::FRAGMENT);
 
 		glLinkProgram(this->ID);
-	#ifdef _DEBUG
-	// Debugging
+#ifdef _DEBUG
 		int success;
 		glGetProgramiv(this->ID, GL_LINK_STATUS, &success);
 		if (!success) {
@@ -25,7 +24,7 @@ namespace CGL {
 			std::cout << "ERROR::GL::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 			std::cout << "Program created, but could not be linked\n";
 		}
-	#endif // _DEBUG
+#endif // _DEBUG
 	}
 
 	ShaderProgram::~ShaderProgram() {
@@ -80,11 +79,23 @@ namespace CGL {
 
 	void ShaderProgram::SetUniform1i(std::string name, int value) {
 		int	location = glGetUniformLocation(ID, name.c_str());
-		glUniform1i(location, value);
+#ifdef _DEBUG
+		if(-1==location)
+			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
+				" name starts with the reserved prefix \"gl_\".\n";
+#endif //_DEBUG
+		if(-1!=location) glUniform1i(location, value);
 	}
 
 	void ShaderProgram::SetUniformMatrix4f(std::string name, glm::mat4 mat) {
 		int location = glGetUniformLocation(this->ID, name.c_str());
-		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+#ifdef _DEBUG
+		if(-1==location)
+			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
+				" name starts with the reserved prefix \"gl_\".\n";
+#endif //_DEBUG
+		if(-1!=location) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 	}
 } // namespace CGL

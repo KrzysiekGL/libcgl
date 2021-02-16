@@ -18,6 +18,7 @@
 
 #include <SOIL2/SOIL2.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
