@@ -1,11 +1,12 @@
 #include "Camera.h"
 namespace CGL {
 
+// - Ctors & Dtors
 	Camera::Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed)
-		: cameraPos(cameraPos),
-		  pitch(pitch), yaw(yaw),
+		: cameraSpeed(camSpeed),
 		  cameraSensitivity(camSensitivity),
-		  cameraSpeed(camSpeed)
+		  pitch(pitch), yaw(yaw),
+		  cameraPos(cameraPos)
 	{
 	// Initialize camera vectors
 	// camera reverse direction - assume that camera initially is looking at the origin of the world
@@ -18,16 +19,12 @@ namespace CGL {
 	cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
 	}
 
-	Camera::Camera(glm::vec3 cameraPos) { // @suppress("Class members should be properly initialized")
-		Camera(cameraPos, 0.f, -90.f, .1f, 2.f);
-	}
+	Camera::Camera(glm::vec3 cameraPos) : Camera(cameraPos, 0.f, -90.f, .1f, 2.f) {}
 
-	Camera::Camera() { // @suppress("Class members should be properly initialized")
-		Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f);
-	}
+	Camera::Camera() : Camera(glm::vec3(0.f, 0.f, 2.f), 0.f, -90.f, .1f, 2.f) {}
+// - END Cotrs & Dotrs
 
-	Camera::~Camera() {}
-
+// - Public Methods
 	glm::mat4 Camera::GetViewMatrix() {
 		glm::vec3 target = cameraPos - cameraRevDir;
 		glm::mat4 view = glm::lookAt(cameraPos, target, cameraUp);
@@ -35,7 +32,7 @@ namespace CGL {
 	}
 
 	void Camera::KeyInputProcess(GLFWwindow* window, float deltaTime) {
-		// Forward, Backward and strafe
+		// Forward, Backward and strife
 		// forward
 		if (glfwGetKey(window, GLFW_KEY_W))
 			cameraPos -= deltaTime * cameraSpeed * cameraRevDir;
@@ -77,7 +74,9 @@ namespace CGL {
 		cameraRevDir = glm::normalize(-newDirection);
 		updateCameraVectors();
 	}
+// - END Public Methods
 
+// - Private Methods
 	void Camera::updateCameraVectors() {
 		// camera right
 		glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f);
@@ -85,4 +84,6 @@ namespace CGL {
 		// camera up
 		cameraUp = glm::normalize(glm::cross(cameraRevDir, cameraRight));
 	}
+// - END Private Methods
+
 } // namespace CGL

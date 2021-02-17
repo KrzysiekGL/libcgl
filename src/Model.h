@@ -7,6 +7,7 @@
  * - store every mesh as a Mesh class object
  * - draw a 3D model by drawing every mesh with a given ShaderProgram
  */
+
 #ifndef MODELH
 #define MODELH
 
@@ -17,13 +18,16 @@
 
 #include <SOIL2/SOIL2.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "Mesh.h"
 #include "ShaderProgram.h"
 
 namespace CGL {
+
 	/*
 	 * Load a texture from file and immediately store it on the GPU
 	 * also set OpenGL's texture parameters (glTexParameteri)
@@ -42,23 +46,32 @@ namespace CGL {
 
 	class Model {
 	public:
-		/* Load a 3D model binary from given path */
 		Model() {}
-		Model(std::string path);
-		~Model();
 
-		/* Draw all meshes with a given ShaderProgram */
-		void Draw(ShaderProgram shader);
+		/*
+		 * Load a 3D model binary from given path
+		 */
+		Model(std::string path);
+
+		/*
+		 * Draw all meshes with a given ShaderProgram
+		 */
+		void Draw(std::shared_ptr<ShaderProgram> shader);
 
 	private:
-		/* Load a given 3D model with a Assimp importer and process all of Assimp's nodes */
+
+		/*
+		 * Load a given 3D model with a Assimp importer and process all of Assimp's nodes
+		 */
 		void loadModel(std::string path);
+
 		/*
 		 * Process Assimp's node:
 		 * - check if there are any meshes, and if so, process them
 		 * - check if this node is a parent node for another node
 		 */
 		void processNode(aiNode* node, const aiScene* scene);
+
 		/*
 		 * Process Assimp's mesh:
 		 * - extract all vertices -- position, normal, texture coordinates
@@ -68,6 +81,7 @@ namespace CGL {
 		 *   (here, only DIFFUESE and SPECULAR, but there are more)
 		 */
 		Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
 		/*
 		 * Extract all of textures by a given TYPE and return them as an array
 		 * Skip those that were already loaded

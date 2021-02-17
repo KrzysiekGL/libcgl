@@ -31,20 +31,33 @@ namespace CGL {
 	class ShaderProgram {
 	public:
 		// Constructors & Destructors
-		/* Empty ShaderProgram object only contain default gl shader program with ID set to 0 */
-		ShaderProgram();
-		/* Create a ShaderProgram from vertex and fragment shader source code */
-		ShaderProgram(const char* vertexFile, const char* fragmentFile);
+
 		/*
-		 *  OpenGL is given the information that this shader
+		 * Empty ShaderProgram object only contain default gl shader program with ID set to 0
+		 */
+		ShaderProgram();
+
+		/*
+		 * Create a ShaderProgram from vertex and fragment shader source code
+		 */
+		ShaderProgram(const char* vertexFile, const char* fragmentFile);
+
+		/*
+		 * OpenGL is given the information that this shader
 		 * with a given ID will no longer be used, thus is being deleted as a GL shader program
 		 */
 		~ShaderProgram();
 
 		//Methods
-		/* Get ShaderProgram ID given by OpenGL  */
+
+		/*
+		 * Get ShaderProgram ID given by OpenGL
+		 */
 		GLuint GetProgram() { return this->ID; }
-		/* Use ShaderProgram described by ID given by OpenGL */
+
+		/*
+		 * Use ShaderProgram described by ID given by OpenGL
+		 */
 		void Use() { glUseProgram(this->ID); }
 
 		/*
@@ -56,10 +69,14 @@ namespace CGL {
 
 	private:
 		// Fields
-		/* ShaderProgram ID given by OpenGL; defaults to 0 */
+
+		/*
+		 * ShaderProgram ID given by OpenGL; defaults to 0
+		 */
 		GLuint ID;
 
 		// Methods
+
 		/*
 		 * Basically whole creation of a shader program pipeline:
 		 * Get source file data, create a GL shader program, compile shader,
@@ -67,7 +84,10 @@ namespace CGL {
 		 * delete no longer required single GL shader object
 		 */
 		void addShaderToProgram(const char* filePath, ShaderType type);
-		/* Read source file and store it as a std::string */
+
+		/*
+		 * Read source file and store it as a std::string
+		 */
 		std::string readFileToSource(const char* filePath);
 	};
 } // namespace CGL

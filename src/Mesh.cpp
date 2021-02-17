@@ -1,17 +1,44 @@
 #include "Mesh.h"
 namespace CGL {
 
+// - Ctors & Dtors
 	Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
 		: vertices(vertices), indices(indices), textures(textures) {
 		setupMesh();
 	}
+// - END Ctors & Dtors
 
-	Mesh::~Mesh() {
-		vertices.clear();
-		indices.clear();
-		textures.clear();
+// - Public Methods
+	void Mesh::Draw(std::shared_ptr<ShaderProgram> shader) {
+		shader->Use();
+
+		unsigned int diffuseNr = 1;
+		unsigned int specularNr = 1;
+		unsigned int normalNr = 1;
+		unsigned int heighNr = 1;
+
+		for (unsigned int i = 0; i < textures.size(); i++) {
+			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+
+			std::string number;
+			std::string name = textures[i].type;
+			if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
+			else if (name == "texture_specular") number = std::to_string(specularNr++);
+			else if (name == "texture_normal") number = std::to_string(normalNr++);
+			else if (name == "texture_height") number = std::to_string(heighNr++);
+
+			shader->SetUniform1i((name + number).c_str(), i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
+
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glActiveTexture(GL_TEXTURE0);
 	}
+// - END Public Methods
 
+// - Private Methods
 	void Mesh::setupMesh() {
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -36,32 +63,6 @@ namespace CGL {
 
 		glBindVertexArray(0);
 	}
+// - END Private Methods
 
-	void Mesh::Draw(ShaderProgram shader) {
-		shader.Use();
-
-		unsigned int diffuseNr = 1;
-		unsigned int specularNr = 1;
-		unsigned int normalNr = 1;
-		unsigned int heighNr = 1;
-
-		for (unsigned int i = 0; i < textures.size(); i++) {
-			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-
-			std::string number;
-			std::string name = textures[i].type;
-			if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
-			else if (name == "texture_specular") number = std::to_string(specularNr++);
-			else if (name == "texture_normal") number = std::to_string(normalNr++);
-			else if (name == "texture_height") number = std::to_string(heighNr++);
-
-			shader.SetUniform1i((name + number).c_str(), i);
-			glBindTexture(GL_TEXTURE_2D, textures[i].id);
-		}
-
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glActiveTexture(GL_TEXTURE0);
-	}
 } // namespace CGL

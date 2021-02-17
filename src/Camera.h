@@ -16,27 +16,33 @@
 namespace CGL {
 	class Camera {
 	public:
-		/* Create a camera and assign default parameter's values */
+		/*
+		 * Create a camera and assign default parameter's values
+		 */
 		Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed);
 		Camera(glm::vec3 cameraPos);
 		Camera();
-		~Camera();
 
-		/* Get the VIEW MATRIX from a camera */
+		/*
+		 * Get the VIEW MATRIX from a camera
+		 */
 		glm::mat4 GetViewMatrix();
+
 		/*
 		 * Handle keyboard input
 		 * Currently set to:
 		 * W - move camera front
 		 * S - move camera backwards
-		 * A - strafe camera left
-		 * D - strafe camera right
+		 * A - strife camera left
+		 * D - strife camera right
 		 * L_CRTL - move camera up
 		 * SPACE - move camera down
 		 */
 		void KeyInputProcess(GLFWwindow* window, float deltaTime);
+
+		// TODO Implement mouse picking
 		/*
-		 * Handel mouse input
+		 * Handle mouse input
 		 * Camera is using pitch and yaw of Euler angles (roll is not handled)
 		 * Currently set to:
 		 * M_VERT_UP - pitch camera up

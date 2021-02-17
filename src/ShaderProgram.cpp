@@ -1,6 +1,7 @@
 #include "ShaderProgram.h"
 namespace CGL {
 
+// - Ctors & Dtors
 	ShaderProgram::ShaderProgram() {
 		ID = 0;
 	#ifdef _DEBUG
@@ -15,8 +16,7 @@ namespace CGL {
 		addShaderToProgram(fragmentFile, ShaderType::FRAGMENT);
 
 		glLinkProgram(this->ID);
-	#ifdef _DEBUG
-	// Debugging
+#ifdef _DEBUG
 		int success;
 		glGetProgramiv(this->ID, GL_LINK_STATUS, &success);
 		if (!success) {
@@ -25,13 +25,39 @@ namespace CGL {
 			std::cout << "ERROR::GL::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 			std::cout << "Program created, but could not be linked\n";
 		}
-	#endif // _DEBUG
+#endif // _DEBUG
 	}
 
 	ShaderProgram::~ShaderProgram() {
 		glDeleteProgram(this->ID);
 	}
+// - END Ctors & Dtors
 
+// - Public Methods
+	void ShaderProgram::SetUniform1i(std::string name, int value) {
+		int	location = glGetUniformLocation(ID, name.c_str());
+#ifdef _DEBUG
+		if(-1==location)
+			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
+				" name starts with the reserved prefix \"gl_\".\n";
+#endif //_DEBUG
+		if(-1!=location) glUniform1i(location, value);
+	}
+
+	void ShaderProgram::SetUniformMatrix4f(std::string name, glm::mat4 mat) { // @suppress("Type cannot be resolved") // @suppress("Member declaration not found")
+		int location = glGetUniformLocation(this->ID, name.c_str());
+#ifdef _DEBUG
+		if(-1==location)
+			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
+				" name starts with the reserved prefix \"gl_\".\n";
+#endif //_DEBUG
+		if(-1!=location) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)); // @suppress("Invalid arguments")
+	}
+// - END Public Methods
+
+// Private Methods
 	std::string ShaderProgram::readFileToSource(const char* filePath) {
 		std::ifstream file(filePath);
 		if (file) {
@@ -77,14 +103,6 @@ namespace CGL {
 				glDeleteShader(shader);
 			}
 	}
+// - END Private Methods
 
-	void ShaderProgram::SetUniform1i(std::string name, int value) {
-		int	location = glGetUniformLocation(ID, name.c_str());
-		glUniform1i(location, value);
-	}
-
-	void ShaderProgram::SetUniformMatrix4f(std::string name, glm::mat4 mat) {
-		int location = glGetUniformLocation(this->ID, name.c_str());
-		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
-	}
 } // namespace CGL
