@@ -8,7 +8,7 @@
  * - Scene object has it's own Camera object, thus It also have to pass to it's Camera any control input
  *
  * To create a simple Scene and run it, do the following:
- * 1. create a Scene with a Camera as a parameter
+ * 1. create a Scene object
  * 2. add a Model with it's name
  * 3. add a ShaderProgram with it's name
  * 4. create a new Actor wit added Model and ShaderProgram
@@ -29,14 +29,14 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include <memory>
 
 namespace CGL {
 
 struct Actor {
-	std::map<std::string, Model>::iterator modelIterator;
-	std::map<std::string, ShaderProgram>::iterator shaderProgramIterator;
+	std::shared_ptr<Model> sharedPtrModel;
+	std::shared_ptr<ShaderProgram> sharedPtrShaderProgram;
 	glm::mat4 modelMatrix;
-	// TODO Add actor collection sorting with regard to transparency
 	bool transparent;
 };
 
@@ -44,27 +44,42 @@ class Scene {
 public:
 
 	/*
-	 * Scene consists of a Camera object and screen size parameters.
+	 * Scene consists of a Camera (or many Cameras) object(s),
+	 * screen size parameters and camera settings,
+	 * collection of 2D/3D models,
+	 * and collection of shader programs to render with
 	 */
 	Scene();
-	Scene(Camera camera);
 
 	/*
-	 * ShaderPrograms are stored in shaderColleciton map and Models are stored in modelCollection map.
-	 * Each ShaderProgram and Model is associated with a name.
+	 * Scene can contain many Cameras. References to them are
+	 * stored in the cameraCollection map<std::string, std::shared_ptr<Camera>>.
 	 */
-	void AddShaderProgram(std::string shaderProgram_name, ShaderProgram shaderProgram);
-	void AddModel(std::string model_name, Model model);
+	void AddCamera(std::string camera_name, glm::vec3 camera_position=glm::vec3(0.f, 0.f, 3.f), float pith=0.f, float yaw=-90.f, float camera_sensitivity=.1f, float camera_speed=2.f);
+
+	/*
+	 * ShaderPrograms are stored in shaderColleciton map<std::string, std::shared_ptr<ShaderProgram>>
+	 * and Models are stored in modelCollection map<std::string, std::shared_ptr<Model>>.
+	 * Each ShaderProgram and Model is associated with a name (std::string).
+	 */
+	void AddShaderProgram(std::string shader_name, std::string vert_path, std::string frag_path);
+	void AddModel(std::string model_name, std::string model_path);
 
 	// TODO Add method to modify Actor's model matrix
 	/*
 	 * This method adds Actor to the scene.
 	 * Both Model and ShaderProgram objects has to be present at the time
 	 * of calling AddActor().
+	 * References to all Actors are stored in the actorCollection
+	 * map<std::string, std::shared_ptr<Actor>>.
+	 *
+	 * Actor consist of a Model and information about with which
+	 * ShaderProgram it should be rendered.
+	 *
 	 * If Model/ShaderProgram with the given name doesn't exist,
 	 * `false` will be returned, otherwise `true`.
 	 */
-	bool AddActor(std::string model_name, std::string shader_name);
+	bool AddActor(std::string model_name, std::string shader_name, glm::mat4 model_matrix=glm::mat4(1.f), bool isTransparnt=false);
 
 	// TODO Implement physics somewhere over here
 	// TODO Integrate UI
@@ -81,21 +96,32 @@ public:
 	std::vector<std::string> GetShaderProgramCollectionNames();
 	std::vector<std::string> GetModelCollectionNames();
 	std::vector<std::string> GetActorCollectionNames();
+	std::vector<std::string> GetCameraCollectionNames();
 
 private:
 	/*
-	 * Collection of loaded Models/ShaderPrograms/Actors into scene in form
-	 * of a map {std::string, T}
+	 * Collection of Models/ShaderPrograms/Actors/Cameras
+	 * present in the Scene in form of a map<std::string, std::shared_ptr<T>>.
+	 *
+	 * Model - 3D/2D models placed in the world space
+	 *
+	 * ShaderProgram - GL shader programs to render Models
+	 *
+	 * Actor - pair of Model and ShaderProgram with information
+	 *         with information if it's transparent and what
+	 *         is it's Model Matrix
+	 *
+	 * Camera - object to move and interact with a scene
+	 *          also generates perspective and view matrices
 	 */
-	std::map<std::string, Model> modelCollection;
-	std::map<std::string, ShaderProgram> shaderProgramCollection;
-	std::map<std::string, Actor> actorCollection;
-
-	/*
-	 * Camera object (and freeCam mode flag) to move in a scene
-	 * and interact with it.
-	 */
-	Camera camera;
+	std::map<std::string, std::shared_ptr<Model>> modelCollection;
+	std::map<std::string, std::shared_ptr<ShaderProgram>> shaderProgramCollection;
+	// TODO Add actor collection sorting with regard to transparency in the AddActor()
+	std::map<std::string, std::shared_ptr<Actor>> actorCollection;
+	std::map<std::string, std::shared_ptr<Camera>> cameraCollection;
+	// Currently used Camera
+	std::shared_ptr<Camera> current_camera;
+	// Is freeCam mode enabled (affect all Cameras)
 	bool freeCam;
 
 	/*

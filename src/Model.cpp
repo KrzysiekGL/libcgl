@@ -9,7 +9,7 @@ namespace CGL {
 // - END Ctors & Dtors
 
 // - Public Methods
-	void Model::Draw(ShaderProgram shader) {
+	void Model::Draw(std::shared_ptr<ShaderProgram> shader) {
 		for (Mesh& mesh : meshes)
 			mesh.Draw(shader);
 	}

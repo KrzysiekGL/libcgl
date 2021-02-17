@@ -9,8 +9,8 @@ namespace CGL {
 // - END Ctors & Dtors
 
 // - Public Methods
-	void Mesh::Draw(ShaderProgram shader) {
-		shader.Use();
+	void Mesh::Draw(std::shared_ptr<ShaderProgram> shader) {
+		shader->Use();
 
 		unsigned int diffuseNr = 1;
 		unsigned int specularNr = 1;
@@ -27,7 +27,7 @@ namespace CGL {
 			else if (name == "texture_normal") number = std::to_string(normalNr++);
 			else if (name == "texture_height") number = std::to_string(heighNr++);
 
-			shader.SetUniform1i((name + number).c_str(), i);
+			shader->SetUniform1i((name + number).c_str(), i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}
 
