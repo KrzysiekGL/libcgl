@@ -48,6 +48,8 @@ namespace CGL {
 		 */
 		~ShaderProgram();
 
+		// TODO Delete Copy Constructor and operator=
+
 		//Methods
 
 		/*
