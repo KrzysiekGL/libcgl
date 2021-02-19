@@ -13,6 +13,22 @@ Scene::Scene() {
 	std::string camera_name = "Camera-00";
 	AddCamera(camera_name);
 	current_camera = cameraCollection[camera_name];
+
+	// Create Bullet Dynamic World and it's configuration dependencies
+	collisionConfiguration = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	broadphaseInterface = new btDbvtBroadphase();
+	solver = new btSequentialImpulseConstraintSolver();
+	dynamicWorld = new btDiscreteDynamicsWorld(dispatcher, broadphaseInterface, solver, collisionConfiguration);
+	dynamicWorld->setGravity(btVector3(0.f, -10.f, 0.f));
+}
+
+Scene::~Scene(){
+	delete dynamicWorld;
+	delete solver;
+	delete broadphaseInterface;
+	delete dispatcher;
+	delete collisionConfiguration;
 }
 // -  END Constructors & Destructors
 
@@ -32,7 +48,7 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 	modelCollection[model_name] = std::make_shared<Model>(model);
 }
 
-bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, glm::mat4 model_matrix, bool isTransparent) {
+bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Shape shape, btScalar mass, glm::mat4 model_matrix, bool isTransparent) {
 	/*
 	 * Search if there are model_name and shaderProgram_name
 	 * present in the collections
@@ -63,11 +79,45 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, glm
 	std::string actor_name = mit->first;
 	std::shared_ptr<Actor> actor = std::make_shared<Actor>();
 
-	// parameters
-	actor->sharedPtrModel = mit->second;
-	actor->sharedPtrShaderProgram = spit->second;
-	actor->modelMatrix = model_matrix;
-	actor->transparent = isTransparent;
+	// create a rigid body and add it to the Dynamic World; also store collision shape in the actor
+
+	// Bullet shape
+	// TODO Make it possible to customize shapes
+	btCollisionShape * bulletShape;
+	switch (shape) {
+		case Shape::BOX:
+			bulletShape = new btBoxShape(btVector3(1.f, 1.f, 1.f));
+			break;
+		case Shape::PLANE:
+			bulletShape = new btStaticPlaneShape(btVector3(0.f, 1.f, 0.f), 0.f);
+			break;
+	}
+
+	// Bullet initial model transformation
+	btTransform transform;
+	transform.setFromOpenGLMatrix(glm::value_ptr(model_matrix));
+
+	// Bullet rigid body dynamics
+	btVector3 localInertia(0.f, 0.f, 0.f);
+	if(mass!=0.f)
+		bulletShape->calculateLocalInertia(mass, localInertia);
+
+	// Bullet motionstate
+	btDefaultMotionState * motionState = new btDefaultMotionState(transform);
+
+	// Bullet rigid body
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, bulletShape, localInertia);
+	btRigidBody * body = new btRigidBody(rbInfo);
+
+	// Add teh body to teh dynamic world
+	dynamicWorld->addRigidBody(body);
+
+	// get pointers to model and shader collection to store them in the actor
+
+	// store everything what is needed in the actor
+	std::shared_ptr<Model> sharedModel = mit->second;
+	std::shared_ptr<ShaderProgram> sharedShaderProgram = spit->second;
+	actor->SetParameters(sharedModel, sharedShaderProgram, bulletShape, body, model_matrix, isTransparent);
 
 	// name
 	/*
@@ -80,7 +130,7 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, glm
 	 */
 	unsigned int number = 0;
 	for(std::pair<std::string, std::shared_ptr<Actor>> a : actorCollection)
-		if(a.second->sharedPtrModel == actor->sharedPtrModel)
+		if(a.second->GetSharedModel() == actor->GetSharedModel())
 			number++;
 	actor_name = actor_name+"-"+std::to_string(number);
 
@@ -103,9 +153,9 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
 }
 
 // -- Getters
-std::vector<std::string> Scene::GetShaderProgramCollectionNames() {
+std::vector<std::string> Scene::GetShaderProgramCollectionNames() const {
 	std::vector<std::string> names;
-	std::map<std::string, std::shared_ptr<ShaderProgram>>::iterator it = shaderProgramCollection.begin();
+	auto it = shaderProgramCollection.begin();
 	while(it != shaderProgramCollection.end()) {
 		names.push_back(it->first);
 		it++;
@@ -113,9 +163,9 @@ std::vector<std::string> Scene::GetShaderProgramCollectionNames() {
 	return names;
 }
 
-std::vector<std::string> Scene::GetModelCollectionNames() {
+std::vector<std::string> Scene::GetModelCollectionNames() const {
 	std::vector<std::string> names;
-	std::map<std::string, std::shared_ptr<Model>>::iterator it = modelCollection.begin();
+	auto it = modelCollection.begin();
 	while(it != modelCollection.end()) {
 		names.push_back(it->first);
 		it++;
@@ -123,9 +173,9 @@ std::vector<std::string> Scene::GetModelCollectionNames() {
 	return names;
 }
 
-std::vector<std::string> Scene::GetActorCollectionNames() {
+std::vector<std::string> Scene::GetActorCollectionNames() const {
 	std::vector<std::string> names;
-	std::map<std::string, std::shared_ptr<Actor>>::iterator it = actorCollection.begin();
+	auto it = actorCollection.begin();
 	while(it != actorCollection.end()) {
 		names.push_back(it->first);
 		it++;
@@ -133,9 +183,9 @@ std::vector<std::string> Scene::GetActorCollectionNames() {
 	return names;
 }
 
-std::vector<std::string> Scene::GetCameraCollectionNames(){
+std::vector<std::string> Scene::GetCameraCollectionNames() const {
 	std::vector<std::string> names;
-	std::map<std::string, std::shared_ptr<Camera>>::iterator it = cameraCollection.begin();
+	auto it = cameraCollection.begin();
 	while(it != cameraCollection.end()){
 		names.push_back(it->first);
 		it++;
@@ -168,22 +218,49 @@ void Scene::handleMouseInput(GLFWwindow* window) {
 }
 
 void Scene::draw() {
+
 	// Get view and projection matrices for current frame from the Camera
 	glm::mat4 viewMatrix = current_camera->GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
-	// Iterate over all actors from collection and render them
-	for(std::pair<std::string, std::shared_ptr<Actor>> element : actorCollection){
-		// Prepare handles for Model and ShaderProgram
-		const std::shared_ptr<Actor> actor = element.second;
-		std::shared_ptr<Model> sharedPtrModel = actor->sharedPtrModel;
-		std::shared_ptr<ShaderProgram> sharedPtrShaderProgram = actor->sharedPtrShaderProgram;
+	// Step Bullet in simulation
+	dynamicWorld->stepSimulation(1.f/60.f, 10.f);
 
-		// Get Model and ShaderProgram; Set parameters and render model
-		sharedPtrShaderProgram->SetUniformMatrix4f("model", actor->modelMatrix);
-		sharedPtrShaderProgram->SetUniformMatrix4f("view", viewMatrix);
-		sharedPtrShaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
-		sharedPtrModel->Draw(sharedPtrShaderProgram);
+	// Iterate over all world collision objects
+	for (int i = dynamicWorld->getNumCollisionObjects()-1; i>=0; i--){
+		btCollisionObject * obj = dynamicWorld->getCollisionObjectArray()[i];
+		btRigidBody * body = btRigidBody::upcast(obj);
+
+		// find to which Actor this body/object corresponds to
+		// Iterate over all actors from collection and render them
+			for(std::pair<std::string, std::shared_ptr<Actor>> element : actorCollection){
+				const std::shared_ptr<Actor> actor = element.second;
+
+				// if this is not the Actor - skip
+				if(actor->GetRigidBody() != body)
+					continue;
+
+				// Get transformation matrix (model matrix)
+				btTransform transform;
+				if(body && body->getMotionState())
+					body->getMotionState()->getWorldTransform(transform);
+				else
+					transform = obj->getWorldTransform();
+
+				glm::mat4 new_modelMatrix;
+				transform.getOpenGLMatrix(glm::value_ptr(new_modelMatrix));
+				actor->SetModelMatrix(new_modelMatrix);
+
+				// Prepare handles for Model and ShaderProgram
+				std::shared_ptr<Model> sharedPtrModel = actor->GetSharedModel();
+				std::shared_ptr<ShaderProgram> sharedPtrShaderProgram = actor->GetSharedShaderProgram();
+
+				// Get Model and ShaderProgram; Set parameters and render model
+				sharedPtrShaderProgram->SetUniformMatrix4f("model", actor->GetModelMatrix());
+				sharedPtrShaderProgram->SetUniformMatrix4f("view", viewMatrix);
+				sharedPtrShaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
+				sharedPtrModel->Draw(sharedPtrShaderProgram);
+			}
 	}
 }
 // - END Private Methods

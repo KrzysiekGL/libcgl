@@ -21,6 +21,7 @@
 #include "ShaderProgram.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Actor.h"
 
 #include <GLFW/glfw3.h>
 
@@ -33,11 +34,9 @@
 
 namespace CGL {
 
-struct Actor {
-	std::shared_ptr<Model> sharedPtrModel;
-	std::shared_ptr<ShaderProgram> sharedPtrShaderProgram;
-	glm::mat4 modelMatrix;
-	bool transparent;
+enum class Shape {
+	BOX,
+	PLANE,
 };
 
 class Scene {
@@ -50,6 +49,18 @@ public:
 	 * and collection of shader programs to render with
 	 */
 	Scene();
+
+	/*
+	 * Delete dynamic world ptr and all of it's dependencies
+	 */
+	~Scene();
+
+	/*
+	 * Delete Copy Constructor and operator=
+	 * to prevent from memory leaks with pointers
+	 */
+	Scene(const Scene & other) = delete;
+	Scene & operator=(const Scene & other) = delete;
 
 	/*
 	 * Scene can contain many Cameras. References to them are
@@ -79,13 +90,19 @@ public:
 	 * If Model/ShaderProgram with the given name doesn't exist,
 	 * `false` will be returned, otherwise `true`.
 	 */
-	bool AddActor(std::string model_name, std::string shader_name, glm::mat4 model_matrix=glm::mat4(1.f), bool isTransparnt=false);
+	bool AddActor(
+			std::string model_name,
+			std::string shader_name,
+			Shape shape,
+			btScalar mass=0.f,
+			glm::mat4 model_matrix=glm::mat4(1.f),
+			bool isTransparnt=false);
 
 	// TODO Implement physics somewhere over here
 	// TODO Integrate UI
 	/*
 	 * Update information about screen, process input events,
-	 * render all actors.
+	 * make Bullet dynamic world simulation step and render all actors.
 	 */
 	void RunScene(GLFWwindow* window, float deltaFrame, bool freeCam);
 
@@ -93,10 +110,10 @@ public:
 	/*
 	 * Get names of ShaderPrograms/Models/Actors loaded into scene
 	 */
-	std::vector<std::string> GetShaderProgramCollectionNames();
-	std::vector<std::string> GetModelCollectionNames();
-	std::vector<std::string> GetActorCollectionNames();
-	std::vector<std::string> GetCameraCollectionNames();
+	std::vector<std::string> GetShaderProgramCollectionNames() const;
+	std::vector<std::string> GetModelCollectionNames() const;
+	std::vector<std::string> GetActorCollectionNames() const;
+	std::vector<std::string> GetCameraCollectionNames() const;
 
 private:
 	/*
@@ -123,6 +140,17 @@ private:
 	std::shared_ptr<Camera> current_camera;
 	// Is freeCam mode enabled (affect all Cameras)
 	bool freeCam;
+
+	/*
+	 * Bullet Dynamic World with it's dependencies
+	 * (in creation order; delete in reveres order)
+	 * All of them are deleted in the dtor
+	 */
+	btDefaultCollisionConfiguration * collisionConfiguration;
+	btCollisionDispatcher * dispatcher;
+	btBroadphaseInterface * broadphaseInterface;
+	btSequentialImpulseConstraintSolver * solver;
+	btDiscreteDynamicsWorld * dynamicWorld;
 
 	/*
 	 * Screen width and height from GLFW frame buffer
