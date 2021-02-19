@@ -11,7 +11,7 @@ Scene::Scene() {
 
 	// Add default Camera
 	std::string camera_name = "Camera-00";
-	AddCamera(camera_name);
+	AddCamera(camera_name, glm::vec3(0.f, 7.f, 15.f), -45.f);
 	current_camera = cameraCollection[camera_name];
 
 	// Create Bullet Dynamic World and it's configuration dependencies

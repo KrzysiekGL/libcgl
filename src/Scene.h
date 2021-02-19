@@ -98,7 +98,6 @@ public:
 			glm::mat4 model_matrix=glm::mat4(1.f),
 			bool isTransparnt=false);
 
-	// TODO Implement physics somewhere over here
 	// TODO Integrate UI
 	/*
 	 * Update information about screen, process input events,
