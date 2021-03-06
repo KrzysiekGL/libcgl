@@ -48,6 +48,13 @@ namespace CGL {
 		 */
 		~ShaderProgram();
 
+		/*
+		 * Delete Copy Constructor and operator=
+		 * to prevent from memory leaks with pointers
+		 */
+		ShaderProgram(const ShaderProgram & other) = delete;
+		ShaderProgram & operator=(const ShaderProgram & other) = delete;
+
 		//Methods
 
 		/*
