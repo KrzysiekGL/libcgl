@@ -20,7 +20,7 @@ Scene::Scene() {
 	broadphaseInterface = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicWorld = new btDiscreteDynamicsWorld(dispatcher, broadphaseInterface, solver, collisionConfiguration);
-	dynamicWorld->setGravity(btVector3(0.f, -10.f, 0.f));
+	dynamicWorld->setGravity(btVector3(0.f, -9.81f, 0.f));
 }
 
 Scene::~Scene(){
@@ -48,7 +48,7 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 	modelCollection[model_name] = std::make_shared<Model>(model);
 }
 
-bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Shape shape, btScalar mass, glm::mat4 model_matrix, bool isTransparent) {
+std::string Scene::AddActor(std::string model_name, std::string shaderProgram_name, Shape shape, btScalar mass, glm::mat4 model_matrix, bool isTransparent) {
 	/*
 	 * Search if there are model_name and shaderProgram_name
 	 * present in the collections
@@ -60,7 +60,7 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Sha
 #ifdef _DEBUG
 		std::cout << "ERROR::SCENE No \"" << model_name << "\" Model found in the scene\n";
 #endif //_DEBUG
-		return false;
+		return std::string("");
 	}
 
 	// ShaderProgram search
@@ -69,7 +69,7 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Sha
 #ifdef _DEBUG
 		std::cout << "ERROR::SCENE No \"" << shaderProgram_name << "\" ShaderProgram found in the Scene\n";
 #endif
-		return false;
+		return std::string("");
 	}
 
 	/*
@@ -90,6 +90,9 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Sha
 			break;
 		case Shape::PLANE:
 			bulletShape = new btStaticPlaneShape(btVector3(0.f, 1.f, 0.f), 0.f);
+			break;
+		case Shape::SPHERE:
+			bulletShape = new btSphereShape(1.f);
 			break;
 	}
 
@@ -137,7 +140,7 @@ bool Scene::AddActor(std::string model_name, std::string shaderProgram_name, Sha
 	// add Actor to the collection
 	actorCollection[actor_name] = actor;
 
-	return true;
+	return actor_name;
 }
 
 void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {

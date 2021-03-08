@@ -25,10 +25,18 @@ namespace CGL {
 // - END Cotrs & Dotrs
 
 // - Public Methods
-	glm::mat4 Camera::GetViewMatrix() {
+	glm::mat4 Camera::GetViewMatrix() const{
 		glm::vec3 target = cameraPos - cameraRevDir;
 		glm::mat4 view = glm::lookAt(cameraPos, target, cameraUp);
 		return view;
+	}
+
+	glm::vec3 Camera::GetPosition() const{
+		return cameraPos;
+	}
+
+	glm::vec3 Camera::GetFront() const{
+		return -cameraRevDir;
 	}
 
 	void Camera::KeyInputProcess(GLFWwindow* window, float deltaTime) {

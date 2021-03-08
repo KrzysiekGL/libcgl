@@ -26,7 +26,17 @@ namespace CGL {
 		/*
 		 * Get the VIEW MATRIX from a camera
 		 */
-		glm::mat4 GetViewMatrix();
+		glm::mat4 GetViewMatrix() const;
+
+		/*
+		 * Get camera position
+		 */
+		glm::vec3 GetPosition() const;
+
+		/*
+		 * Get camera front vector
+		 */
+		glm::vec3 GetFront() const;
 
 		/*
 		 * Handle keyboard input

@@ -37,6 +37,7 @@ namespace CGL {
 enum class Shape {
 	BOX,
 	PLANE,
+	SPHERE,
 };
 
 class Scene {
@@ -90,7 +91,7 @@ public:
 	 * If Model/ShaderProgram with the given name doesn't exist,
 	 * `false` will be returned, otherwise `true`.
 	 */
-	bool AddActor(
+	std::string AddActor(
 			std::string model_name,
 			std::string shader_name,
 			Shape shape,

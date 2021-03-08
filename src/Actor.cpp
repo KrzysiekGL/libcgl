@@ -11,6 +11,12 @@ Actor::~Actor(){
 // - END Ctros & Dtors
 
 // - Public Methods
+void Actor::SetLinearVelocity(glm::vec3 vec, float value) {
+	vec *= value;
+	btVector3 btDirection(vec.x, vec.y, vec.z);
+	body->setLinearVelocity(btDirection);
+}
+
 std::shared_ptr<Model> Actor::GetSharedModel() const {
 	return sharedModel;
 }

@@ -36,6 +36,11 @@ public:
 			bool isTransparent);
 
 	/*
+	 *  Set linear velocity of this actor
+	 */
+	void SetLinearVelocity(glm::vec3 direction, float value);
+
+	/*
 	 * Getters
 	 */
 	std::shared_ptr<Model> GetSharedModel() const;
