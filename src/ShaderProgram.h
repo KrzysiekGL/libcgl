@@ -74,6 +74,12 @@ namespace CGL {
 		void SetUniform1i(std::string name, int v);
 		void SetUniformMatrix4f(std::string name, glm::mat4 mat);
 
+		/*
+		 * Get vertex or fragment shader source file path
+		 */
+		std::string GetVertexPath() const;
+		std::string GetFragmentPaht() const;
+
 	private:
 		// Fields
 
@@ -81,6 +87,9 @@ namespace CGL {
 		 * ShaderProgram ID given by OpenGL; defaults to 0
 		 */
 		GLuint ID;
+
+		std::string vertex_path;
+		std::string fragment_path;
 
 		// Methods
 

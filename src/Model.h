@@ -58,6 +58,11 @@ namespace CGL {
 		 */
 		void Draw(std::shared_ptr<ShaderProgram> shader);
 
+		/*
+		 * Get path to the model directory
+		 */
+		std::string GetDirectory() const;
+
 	private:
 
 		/*

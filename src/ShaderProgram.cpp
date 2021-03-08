@@ -10,6 +10,8 @@ namespace CGL {
 	}
 
 	ShaderProgram::ShaderProgram(const char* vertexFile, const char* fragmentFile) {
+		vertex_path = std::string(vertexFile);
+		fragment_path = std::string(fragmentFile);
 		this->ID = glCreateProgram();
 
 		addShaderToProgram(vertexFile, ShaderType::VERTEX);
@@ -54,6 +56,14 @@ namespace CGL {
 				" name starts with the reserved prefix \"gl_\".\n";
 #endif //_DEBUG
 		if(-1!=location) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)); // @suppress("Invalid arguments")
+	}
+
+	std::string ShaderProgram::GetVertexPath() const {
+		return vertex_path;
+	}
+
+	std::string ShaderProgram::GetFragmentPaht() const {
+		return fragment_path;
 	}
 // - END Public Methods
 

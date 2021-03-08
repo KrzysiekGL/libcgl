@@ -46,6 +46,10 @@ namespace CGL {
 
 		return textureID;
 	}
+
+	std::string Model::GetDirectory() const {
+		return directory;
+	}
 // - END Public Methods
 
 // - Private Methods

@@ -38,14 +38,41 @@ void Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float 
 }
 
 void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){
-	const char* vertex = vertex_path.c_str();
-	const char* fragment = fragment_path.c_str();
-	shaderProgramCollection[shader_name] = std::make_shared<ShaderProgram>(vertex, fragment);
+	// Check first if given ShaderProgram doesn't exist yet in the collection
+
+	// search for the same name
+	std::map<std::string, std::shared_ptr<ShaderProgram>>::iterator it = shaderProgramCollection.find(shader_name);
+	if(it != shaderProgramCollection.end()) return;
+
+	std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(vertex_path.c_str(), fragment_path.c_str());
+
+	// search for the same ShaderProgram by shader's source paths
+	it=shaderProgramCollection.begin();
+	while(it!=shaderProgramCollection.end())
+		if(		(shader->GetVertexPath() == it->second->GetVertexPath()) &&
+				(shader->GetFragmentPaht() == it->second->GetFragmentPaht()))
+			return;
+
+	// add to the collection
+	shaderProgramCollection[shader_name] = shader;
 }
 
 void Scene::AddModel(std::string model_name, std::string model_path){
-	const char* model = model_path.c_str();
-	modelCollection[model_name] = std::make_shared<Model>(model);
+	// Check first if given Model doesn't exist yet in the collection
+
+	// search for the same name
+	std::map<std::string, std::shared_ptr<Model>>::iterator it = modelCollection.find(model_name);
+	if(it != modelCollection.end()) return;
+
+	std::shared_ptr<Model> model = std::make_shared<Model>(model_path.c_str());
+
+	// search for the same Model by directory
+	it = modelCollection.begin();
+	while(it!=modelCollection.end())
+		if(model->GetDirectory() == it->second->GetDirectory()) return;
+
+	// add to the collection
+	modelCollection[model_name] = model;
 }
 
 std::string Scene::AddActor(std::string model_name, std::string shaderProgram_name, Shape shape, btScalar mass, glm::mat4 model_matrix, bool isTransparent) {
