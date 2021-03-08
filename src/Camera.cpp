@@ -82,6 +82,10 @@ namespace CGL {
 		cameraRevDir = glm::normalize(-newDirection);
 		updateCameraVectors();
 	}
+
+	void Camera::SetCameraSpeed(float value) {
+		this->cameraSpeed = value;
+	}
 // - END Public Methods
 
 // - Private Methods

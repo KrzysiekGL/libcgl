@@ -13,6 +13,7 @@ Scene::Scene() {
 	std::string camera_name = "Camera-00";
 	AddCamera(camera_name, glm::vec3(0.f, 7.f, 15.f), -45.f);
 	current_camera = cameraCollection[camera_name];
+	current_camera->SetCameraSpeed(20.f);
 
 	// Create Bullet Dynamic World and it's configuration dependencies
 	collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -48,10 +49,12 @@ void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, s
 
 	// search for the same ShaderProgram by shader's source paths
 	it=shaderProgramCollection.begin();
-	while(it!=shaderProgramCollection.end())
+	while(it!=shaderProgramCollection.end()) {
 		if(		(shader->GetVertexPath() == it->second->GetVertexPath()) &&
 				(shader->GetFragmentPaht() == it->second->GetFragmentPaht()))
 			return;
+		it++;
+	}
 
 	// add to the collection
 	shaderProgramCollection[shader_name] = shader;
@@ -67,9 +70,11 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 	std::shared_ptr<Model> model = std::make_shared<Model>(model_path.c_str());
 
 	// search for the same Model by directory
-	it = modelCollection.begin();
-	while(it!=modelCollection.end())
+	it=modelCollection.begin();
+	while(it!=modelCollection.end()){
 		if(model->GetDirectory() == it->second->GetDirectory()) return;
+		it++;
+	}
 
 	// add to the collection
 	modelCollection[model_name] = model;
@@ -85,7 +90,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	std::map<std::string, std::shared_ptr<Model>>::iterator mit = modelCollection.find(model_name);
 	if(mit == modelCollection.end()){
 #ifdef _DEBUG
-		std::cout << "ERROR::SCENE No \"" << model_name << "\" Model found in the scene\n";
+		std::cout << "CGL::ERROR::SCENE No \"" << model_name << "\" Model found in the scene\n";
 #endif //_DEBUG
 		return std::string("");
 	}
@@ -94,7 +99,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	std::map<std::string, std::shared_ptr<ShaderProgram>>::iterator spit = shaderProgramCollection.find(shaderProgram_name);
 	if(spit == shaderProgramCollection.end()){
 #ifdef _DEBUG
-		std::cout << "ERROR::SCENE No \"" << shaderProgram_name << "\" ShaderProgram found in the Scene\n";
+		std::cout << "CGL::ERROR::SCENE No \"" << shaderProgram_name << "\" ShaderProgram found in the Scene\n";
 #endif
 		return std::string("");
 	}
@@ -180,6 +185,12 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
 	handleMouseInput(window);
 	// render everything
 	draw();
+}
+
+void Scene::SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value) {
+	std::map<std::string, std::shared_ptr<Actor>>::iterator it = actorCollection.find(actor_name);
+	if(it != actorCollection.end())
+		it->second->SetLinearVelocity(direction, value);
 }
 
 // -- Getters

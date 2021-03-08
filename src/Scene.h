@@ -99,7 +99,11 @@ public:
 			glm::mat4 model_matrix=glm::mat4(1.f),
 			bool isTransparnt=false);
 
-	// TODO Integrate UI
+	/*
+	 * Set Acotr's linear velocity in Bullet
+	 */
+	void SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value);
+
 	/*
 	 * Update information about screen, process input events,
 	 * make Bullet dynamic world simulation step and render all actors.

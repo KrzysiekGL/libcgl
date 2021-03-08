@@ -62,6 +62,11 @@ namespace CGL {
 		 */
 		void MouseInputProcess(GLFWwindow* window);
 
+		/*
+		 * Change camera speed
+		 */
+		void SetCameraSpeed(float value);
+
 	private:
 		/*
 		 * Update camera's parameters (fields)
