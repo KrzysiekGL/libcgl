@@ -222,6 +222,14 @@ std::vector<std::string> Scene::GetCameraCollectionNames() const {
 	}
 	return names;
 }
+
+glm::vec3 Scene::GetCameraPosition(std::string camera_name) const {
+	return cameraCollection.find(camera_name)->second->GetPosition();
+}
+
+glm::vec3 Scene::GetCameraFront(std::string camera_name) const {
+	return cameraCollection.find(camera_name)->second->GetFront();
+}
 // -- END Getters
 // - END Public Methods
 

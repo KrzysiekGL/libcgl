@@ -106,7 +106,6 @@ public:
 	 */
 	void RunScene(GLFWwindow* window, float deltaFrame, bool freeCam);
 
-
 	/*
 	 * Get names of ShaderPrograms/Models/Actors loaded into scene
 	 */
@@ -114,6 +113,12 @@ public:
 	std::vector<std::string> GetModelCollectionNames() const;
 	std::vector<std::string> GetActorCollectionNames() const;
 	std::vector<std::string> GetCameraCollectionNames() const;
+
+	/*
+	 * Get camera parameters
+	 */
+	glm::vec3 GetCameraPosition(std::string camera_name="Camera-00") const;
+	glm::vec3 GetCameraFront(std::string camera_name="Camera-00") const;
 
 private:
 	/*
