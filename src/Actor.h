@@ -16,6 +16,12 @@ class Actor {
 public:
 	Actor();
 
+	Actor(
+		std::shared_ptr<Model> sharedModel,
+		std::shared_ptr<ShaderProgram> sharedShaderProgram,
+		btRigidBody * body,
+		bool isTransparent);
+
 	/*
 	 * Delete shape ptr
 	 */
@@ -26,14 +32,6 @@ public:
 	 */
 	Actor(const Actor & other) = delete;
 	Actor & operator=(const Actor & other) = delete;
-
-	void SetParameters(
-			std::shared_ptr<Model> sharedModel,
-			std::shared_ptr<ShaderProgram> sharedShaderProgram,
-			btCollisionShape * shape,
-			btRigidBody * body,
-			glm::mat4 modelMatrix,
-			bool isTransparent);
 
 	/*
 	 * Draw an actor
@@ -56,14 +54,12 @@ public:
 	/*
 	 * Setters
 	 */
-	void SetModelMatrix(glm::mat4 modelMatrix);
+	//void SetModelMatrix(glm::mat4 modelMatrix);
 
 private:
 	std::shared_ptr<Model> sharedModel;
 	std::shared_ptr<ShaderProgram> sharedShaderProgram;
-	btCollisionShape * shape;
 	btRigidBody * body;
-	glm::mat4 modelMatrix;
 	bool isTransparent;
 };
 

@@ -5,8 +5,20 @@ namespace CGL {
 // - Ctors & Dtors
 Actor::Actor() {}
 
+Actor::Actor(
+			std::shared_ptr<Model> sharedModel,
+			std::shared_ptr<ShaderProgram> sharedShaderProgram,
+			btRigidBody * body,
+			bool isTransparent
+			)
+{
+	this->sharedModel = sharedModel;
+	this->sharedShaderProgram = sharedShaderProgram;
+	this->body = body;
+	this->isTransparent = isTransparent;
+}
+
 Actor::~Actor(){
-	delete shape;
 }
 // - END Ctros & Dtors
 
@@ -24,7 +36,7 @@ void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 		body->getMotionState()->getWorldTransform(transform);
 	else
 		transform = body->getWorldTransform();
-
+	glm::mat4 modelMatrix;
 	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
 
 	// Render Actor
@@ -47,28 +59,19 @@ btRigidBody * const Actor::GetRigidBody() const {
 }
 
 glm::mat4 Actor::GetModelMatrix() const {
+	btTransform transform;
+	if(body && body->getMotionState())
+		body->getMotionState()->getWorldTransform(transform);
+	else
+		transform = body->getWorldTransform();
+	glm::mat4 modelMatrix;
+	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
 	return modelMatrix;
 }
 
-void Actor::SetModelMatrix(glm::mat4 modelMatrix) {
-	this->modelMatrix = modelMatrix;
-}
-
-void Actor::SetParameters(
-			std::shared_ptr<Model> sharedModel,
-			std::shared_ptr<ShaderProgram> sharedShaderProgram,
-			btCollisionShape * shape,
-			btRigidBody * body,
-			glm::mat4 modelMatrix,
-			bool isTransparent)
-{
-	this->sharedModel = sharedModel;
-	this->sharedShaderProgram = sharedShaderProgram;
-	this->shape = shape;
-	this->body = body;
-	this->modelMatrix = modelMatrix;
-	this->isTransparent = isTransparent;
-}
+//void Actor::SetModelMatrix(glm::mat4 modelMatrix) {
+//	this->modelMatrix = modelMatrix;
+//}
 // - END Public Methods
 
 }

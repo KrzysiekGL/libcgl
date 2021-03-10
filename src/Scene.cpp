@@ -54,7 +54,7 @@ void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, s
 		if(		(shader->GetVertexPath() == it->second->GetVertexPath()) &&
 				(shader->GetFragmentPaht() == it->second->GetFragmentPaht())) {
 			shaderProgramCollection[shader_name] = it->second;
-			break;
+			return;
 		}
 		it++;
 	}
@@ -78,7 +78,7 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 		// If Model already exist, make this Model accessible under the new name
 		if(model->GetDirectory() == it->second->GetDirectory()) {
 			modelCollection[model_name] = it->second;
-			break;
+			return;
 		}
 		it++;
 	}
@@ -92,7 +92,6 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	 * Search if there are model_name and shaderProgram_name
 	 * present in the collections
 	 */
-
 	// Model search
 	std::map<std::string, std::shared_ptr<Model>>::iterator mit = modelCollection.find(model_name);
 	if(mit == modelCollection.end()){
@@ -115,11 +114,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	 * If both are present, then create a new shared_ptr to Actor,
 	 * generate a name and put it into collection
 	 */
-	std::string actor_name = mit->first;
-	std::shared_ptr<Actor> actor = std::make_shared<Actor>();
-
 	// create a rigid body and add it to the Dynamic World; also store collision shape in the actor
-
 	// Bullet shape
 	// TODO Make it possible to choose shape easily
 	btCollisionShape * bulletShape;
@@ -154,15 +149,17 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	// Add teh body to teh dynamic world
 	dynamicWorld->addRigidBody(body);
 
-	// get pointers to model and shader collection to store them in the actor
-
-	// store everything what is needed in the actor
+	/*
+	 * store everything what is needed in the actor
+	 * and get pointers to model and shader collection to store them in the actor
+	 */
+	std::string actor_name = mit->first;
 	std::shared_ptr<Model> sharedModel = mit->second;
 	std::shared_ptr<ShaderProgram> sharedShaderProgram = spit->second;
-	actor->SetParameters(sharedModel, sharedShaderProgram, bulletShape, body, model_matrix, isTransparent);
+	std::shared_ptr<Actor> actor = std::make_shared<Actor>(sharedModel, sharedShaderProgram, body, isTransparent);
 
-	// name
 	/*
+	 * Name:
  	 * Iterate over actor collection, and search for how
  	 * many actors has the same model. Then modify actor_name
  	 * so it has another number with regard to how many actors
@@ -177,7 +174,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	actor_name = actor_name+"-"+std::to_string(number);
 
 	// add Actor to the collection
-	actorCollection.insert(std::pair<std::string, std::shared_ptr<Actor>>(actor_name, actor));
+	actorCollection[actor_name] = actor;
 
 	return actor_name;
 } /* Scene::AddActio(...) */

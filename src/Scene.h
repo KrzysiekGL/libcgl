@@ -67,7 +67,12 @@ public:
 	 * Scene can contain many Cameras. References to them are
 	 * stored in the cameraCollection map<std::string, std::shared_ptr<Camera>>.
 	 */
-	void AddCamera(std::string camera_name, glm::vec3 camera_position=glm::vec3(0.f, 0.f, 3.f), float pith=0.f, float yaw=-90.f, float camera_sensitivity=.1f, float camera_speed=2.f);
+	void AddCamera(
+			std::string camera_name,
+			glm::vec3 camera_position=glm::vec3(0.f, 0.f, 3.f),
+			float pith=0.f, float yaw=-90.f,
+			float camera_sensitivity=.1f,
+			float camera_speed=2.f);
 
 	/*
 	 * ShaderPrograms are stored in shaderColleciton map<std::string, std::shared_ptr<ShaderProgram>>
@@ -86,7 +91,8 @@ public:
 	 * map<std::string, std::shared_ptr<Actor>>.
 	 *
 	 * Actor consist of a Model and information about with which
-	 * ShaderProgram it should be rendered.
+	 * ShaderProgram it should be rendered. Actor is also associated
+	 * with btRigidBody.
 	 *
 	 * If Model/ShaderProgram with the given name doesn't exist,
 	 * `false` will be returned, otherwise `true`.
@@ -149,8 +155,8 @@ private:
 	std::map<std::string, std::shared_ptr<ShaderProgram>> shaderProgramCollection;
 	// TODO Add actor collection sorting with regard to transparency in the AddActor()
 	std::map<std::string, std::shared_ptr<Actor>> actorCollection;
+	// Camera Collection and currently used Camera
 	std::map<std::string, std::shared_ptr<Camera>> cameraCollection;
-	// Currently used Camera
 	std::shared_ptr<Camera> current_camera;
 	// Is freeCam mode enabled (affect all Cameras)
 	bool freeCam;
