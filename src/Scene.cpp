@@ -50,9 +50,12 @@ void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, s
 	// search for the same ShaderProgram by shader's source paths
 	it=shaderProgramCollection.begin();
 	while(it!=shaderProgramCollection.end()) {
+		// If there is already ShaderProgram with existing Vertex and Fragment shaders, save it under the new name
 		if(		(shader->GetVertexPath() == it->second->GetVertexPath()) &&
-				(shader->GetFragmentPaht() == it->second->GetFragmentPaht()))
-			return;
+				(shader->GetFragmentPaht() == it->second->GetFragmentPaht())) {
+			shaderProgramCollection[shader_name] = it->second;
+			break;
+		}
 		it++;
 	}
 
@@ -63,16 +66,20 @@ void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, s
 void Scene::AddModel(std::string model_name, std::string model_path){
 	// Check first if given Model doesn't exist yet in the collection
 
-	// search for the same name
+	// Search for the same name
 	std::map<std::string, std::shared_ptr<Model>>::iterator it = modelCollection.find(model_name);
 	if(it != modelCollection.end()) return;
 
 	std::shared_ptr<Model> model = std::make_shared<Model>(model_path.c_str());
 
-	// search for the same Model by directory
+	// Search for the same Model by directory
 	it=modelCollection.begin();
 	while(it!=modelCollection.end()){
-		if(model->GetDirectory() == it->second->GetDirectory()) return;
+		// If Model already exist, make this Model accessible under the new name
+		if(model->GetDirectory() == it->second->GetDirectory()) {
+			modelCollection[model_name] = it->second;
+			break;
+		}
 		it++;
 	}
 
@@ -114,7 +121,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	// create a rigid body and add it to the Dynamic World; also store collision shape in the actor
 
 	// Bullet shape
-	// TODO Make it possible to customize shapes
+	// TODO Make it possible to choose shape easily
 	btCollisionShape * bulletShape;
 	switch (shape) {
 		case Shape::BOX:
@@ -170,12 +177,17 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 	actor_name = actor_name+"-"+std::to_string(number);
 
 	// add Actor to the collection
-	actorCollection[actor_name] = actor;
+	actorCollection.insert(std::pair<std::string, std::shared_ptr<Actor>>(actor_name, actor));
 
 	return actor_name;
-}
+} /* Scene::AddActio(...) */
 
-void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
+void Scene::DelActor(std::string actorName) {
+	auto it = actorCollection.find(actorName);
+	if(it != actorCollection.end()) actorCollection.erase(it);
+} /* Scene::DelActor(actorName) */
+
+void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool freeCam) {
 	// freeCam for the Camera
 	this->freeCam = freeCam;
 	// check for size of a frame buffer
@@ -184,7 +196,7 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeCam) {
 	handleKeyboardInput(window, deltaTime);
 	handleMouseInput(window);
 	// render everything
-	draw();
+	draw(freeze);
 }
 
 void Scene::SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value) {
@@ -266,50 +278,22 @@ void Scene::handleMouseInput(GLFWwindow* window) {
 	if(freeCam) current_camera->MouseInputProcess(window);
 }
 
-void Scene::draw() {
+void Scene::draw(bool freeze) {
 
 	// Get view and projection matrices for current frame from the Camera
 	glm::mat4 viewMatrix = current_camera->GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
-	// Step Bullet in simulation
-	dynamicWorld->stepSimulation(1.f/60.f, 10.f);
-
-	// Iterate over all world collision objects
-	for (int i = dynamicWorld->getNumCollisionObjects()-1; i>=0; i--){
-		btCollisionObject * obj = dynamicWorld->getCollisionObjectArray()[i];
-		btRigidBody * body = btRigidBody::upcast(obj);
-
-		// find to which Actor this body/object corresponds to
-		// Iterate over all actors from collection and render them
-			for(std::pair<std::string, std::shared_ptr<Actor>> element : actorCollection){
-				const std::shared_ptr<Actor> actor = element.second;
-
-				// if this is not the Actor - skip
-				if(actor->GetRigidBody() != body)
-					continue;
-
-				// Get transformation matrix (model matrix)
-				btTransform transform;
-				if(body && body->getMotionState())
-					body->getMotionState()->getWorldTransform(transform);
-				else
-					transform = obj->getWorldTransform();
-
-				glm::mat4 new_modelMatrix;
-				transform.getOpenGLMatrix(glm::value_ptr(new_modelMatrix));
-				actor->SetModelMatrix(new_modelMatrix);
-
-				// Prepare handles for Model and ShaderProgram
-				std::shared_ptr<Model> sharedPtrModel = actor->GetSharedModel();
-				std::shared_ptr<ShaderProgram> sharedPtrShaderProgram = actor->GetSharedShaderProgram();
-
-				// Get Model and ShaderProgram; Set parameters and render model
-				sharedPtrShaderProgram->SetUniformMatrix4f("model", actor->GetModelMatrix());
-				sharedPtrShaderProgram->SetUniformMatrix4f("view", viewMatrix);
-				sharedPtrShaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
-				sharedPtrModel->Draw(sharedPtrShaderProgram);
-			}
+	if(freeze) {
+		// Iterator over all objects and render them without Bullet physics
+		for(auto & actor : actorCollection)
+			actor.second->Draw(viewMatrix, projectionMatrix);
+	}
+	else {
+		// Step Bullet in simulation and iterator over all Actors and render them
+		dynamicWorld->stepSimulation(1.f/60.f, 10.f);
+		for(auto & actor : actorCollection)
+			actor.second->Draw(viewMatrix, projectionMatrix);
 	}
 }
 // - END Private Methods

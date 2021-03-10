@@ -15,6 +15,23 @@ void Actor::SetLinearVelocity(glm::vec3 vec, float value) {
 	vec *= value;
 	btVector3 btDirection(vec.x, vec.y, vec.z);
 	body->setLinearVelocity(btDirection);
+} /* Actor::SetLinearVelocity(...) */
+
+void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
+	// Get Bullet motion state
+	btTransform transform;
+	if(body && body->getMotionState())
+		body->getMotionState()->getWorldTransform(transform);
+	else
+		transform = body->getWorldTransform();
+
+	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
+
+	// Render Actor
+	sharedShaderProgram->SetUniformMatrix4f("model", modelMatrix);
+	sharedShaderProgram->SetUniformMatrix4f("view", viewMatrix);
+	sharedShaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
+	sharedModel->Draw(sharedShaderProgram);
 }
 
 std::shared_ptr<Model> Actor::GetSharedModel() const {

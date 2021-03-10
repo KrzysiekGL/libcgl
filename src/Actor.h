@@ -36,6 +36,11 @@ public:
 			bool isTransparent);
 
 	/*
+	 * Draw an actor
+	 */
+	void Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+
+	/*
 	 *  Set linear velocity of this actor
 	 */
 	void SetLinearVelocity(glm::vec3 direction, float value);

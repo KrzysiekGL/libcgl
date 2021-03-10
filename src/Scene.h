@@ -100,6 +100,11 @@ public:
 			bool isTransparnt=false);
 
 	/*
+	 * Delete an Actor from the collection
+	 */
+	void DelActor(std::string actorName);
+
+	/*
 	 * Set Acotr's linear velocity in Bullet
 	 */
 	void SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value);
@@ -108,7 +113,7 @@ public:
 	 * Update information about screen, process input events,
 	 * make Bullet dynamic world simulation step and render all actors.
 	 */
-	void RunScene(GLFWwindow* window, float deltaFrame, bool freeCam);
+	void RunScene(GLFWwindow* window, float deltaFrame, bool freeze, bool freeCam);
 
 	/*
 	 * Get names of ShaderPrograms/Models/Actors loaded into scene
@@ -170,7 +175,7 @@ private:
 	/*
 	 * Draw all actors with respect of their model matrices.
 	 */
-	void draw();
+	void draw(bool freeze = false);
 
 	/*
 	 * Get screen size from GLFW frame buffer.
