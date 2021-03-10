@@ -40,7 +40,7 @@ namespace CGL {
 		int	location = glGetUniformLocation(ID, name.c_str());
 #ifdef _DEBUG
 		if(-1==location)
-			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+			std::cout << "CGL::ERROR::SHADERPROGRAM::Returned value of location is " << location <<
 				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
 				" name starts with the reserved prefix \"gl_\".\n";
 #endif //_DEBUG
@@ -51,7 +51,7 @@ namespace CGL {
 		int location = glGetUniformLocation(this->ID, name.c_str());
 #ifdef _DEBUG
 		if(-1==location)
-			std::cout << "ERROR::SHADERPROGRAM::Returned value of location is " << location <<
+			std::cout << "CGL::ERROR::SHADERPROGRAM::Returned value of location is " << location <<
 				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
 				" name starts with the reserved prefix \"gl_\".\n";
 #endif //_DEBUG

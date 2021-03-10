@@ -279,22 +279,14 @@ void Scene::handleMouseInput(GLFWwindow* window) {
 }
 
 void Scene::draw(bool freeze) {
-
 	// Get view and projection matrices for current frame from the Camera
 	glm::mat4 viewMatrix = current_camera->GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
-	if(freeze) {
-		// Iterator over all objects and render them without Bullet physics
-		for(auto & actor : actorCollection)
-			actor.second->Draw(viewMatrix, projectionMatrix);
-	}
-	else {
-		// Step Bullet in simulation and iterator over all Actors and render them
-		dynamicWorld->stepSimulation(1.f/60.f, 10.f);
-		for(auto & actor : actorCollection)
-			actor.second->Draw(viewMatrix, projectionMatrix);
-	}
+	// Iterator over all objects and render them  (if freeze then with physics)
+	if(!freeze) dynamicWorld->stepSimulation(1.f/60.f, 10.f);
+	for(auto & actor : actorCollection)
+		actor.second->Draw(viewMatrix, projectionMatrix);
 }
 // - END Private Methods
 
