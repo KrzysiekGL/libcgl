@@ -5,7 +5,7 @@ namespace CGL {
 	ShaderProgram::ShaderProgram() {
 		ID = 0;
 	#ifdef _DEBUG
-		std::cout << "ShaderProgram instantiated, but shader program itself not compiled and created.\n";
+		std::cout << "CGL::INFO::SHADERPROGRAM ShaderProgram instantiated, but shader program itself not compiled and created.\n";
 	#endif // _DEBUG
 	}
 
@@ -24,7 +24,7 @@ namespace CGL {
 		if (!success) {
 			char infoLog[512];
 			glGetProgramInfoLog(this->ID, 512, NULL, infoLog);
-			std::cout << "ERROR::GL::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			std::cout << "CGL::ERROR::GL::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 			std::cout << "Program created, but could not be linked\n";
 		}
 #endif // _DEBUG

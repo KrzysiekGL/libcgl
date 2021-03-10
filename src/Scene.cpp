@@ -172,6 +172,7 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 		if(a.second->GetSharedModel() == actor->GetSharedModel())
 			number++;
 	actor_name = actor_name+"-"+std::to_string(number);
+	actor->SetActorName(actor_name);
 
 	// add Actor to the collection
 	actorCollection[actor_name] = actor;
@@ -192,8 +193,10 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool free
 	// handle inputs by the Camera
 	handleKeyboardInput(window, deltaTime);
 	handleMouseInput(window);
+	// Run physics if not freeze
+	if(!freeze) dynamicWorld->stepSimulation(1.f/60.f, 10.f);
 	// render everything
-	draw(freeze);
+	draw();
 }
 
 void Scene::SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value) {
@@ -275,13 +278,12 @@ void Scene::handleMouseInput(GLFWwindow* window) {
 	if(freeCam) current_camera->MouseInputProcess(window);
 }
 
-void Scene::draw(bool freeze) {
+void Scene::draw() {
 	// Get view and projection matrices for current frame from the Camera
 	glm::mat4 viewMatrix = current_camera->GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
 	// Iterator over all objects and render them  (if freeze then with physics)
-	if(!freeze) dynamicWorld->stepSimulation(1.f/60.f, 10.f);
 	for(auto & actor : actorCollection)
 		actor.second->Draw(viewMatrix, projectionMatrix);
 }

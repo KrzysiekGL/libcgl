@@ -44,6 +44,11 @@ public:
 	void SetLinearVelocity(glm::vec3 direction, float value);
 
 	/*
+	 * Set actor name
+	 */
+	void SetActorName(std::string actorName);
+
+	/*
 	 * Getters
 	 */
 	std::shared_ptr<Model> GetSharedModel() const;
@@ -57,6 +62,7 @@ public:
 	//void SetModelMatrix(glm::mat4 modelMatrix);
 
 private:
+	std::string actorName;
 	std::shared_ptr<Model> sharedModel;
 	std::shared_ptr<ShaderProgram> sharedShaderProgram;
 	btRigidBody * body;

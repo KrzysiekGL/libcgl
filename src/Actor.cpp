@@ -29,6 +29,10 @@ void Actor::SetLinearVelocity(glm::vec3 vec, float value) {
 	body->setLinearVelocity(btDirection);
 } /* Actor::SetLinearVelocity(...) */
 
+void Actor::SetActorName(std::string actorName) {
+	this->actorName = actorName;
+} /* Actor::SetActorName(...) */
+
 void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	// Get Bullet motion state
 	btTransform transform;

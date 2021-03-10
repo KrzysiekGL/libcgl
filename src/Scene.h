@@ -181,7 +181,7 @@ private:
 	/*
 	 * Draw all actors with respect of their model matrices.
 	 */
-	void draw(bool freeze = false);
+	void draw();
 
 	/*
 	 * Get screen size from GLFW frame buffer.
