@@ -3,7 +3,6 @@
 
 #include "Model.h"
 #include "ShaderProgram.h"
-#include "Scene.h"
 
 #include <glm/glm.hpp>
 
@@ -12,6 +11,8 @@
 #include <memory>
 
 namespace CGL {
+
+class Scene; // forward declaration
 
 class Actor {
 public:
@@ -64,7 +65,7 @@ public:
 	//void SetModelMatrix(glm::mat4 modelMatrix);
 
 private:
-	std::shared_ptr<Scene> rootScene;
+	Scene * rootScene;
 	std::string actorName;
 	std::string shaderProgramName;
 	std::string modelName;

@@ -18,6 +18,11 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
+#include "ShaderProgram.h"
+#include "Camera.h"
+#include "Model.h"
+#include "Actor.h"
+
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -28,11 +33,6 @@
 #include <map>
 #include <iterator>
 #include <memory>
-
-#include "ShaderProgram.h"
-#include "Camera.h"
-#include "Model.h"
-#include "Actor.h"
 
 namespace CGL {
 

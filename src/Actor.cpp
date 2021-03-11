@@ -1,11 +1,12 @@
 #include "Actor.h"
+#include "Scene.h"
 
 namespace CGL {
 
 // - Ctors & Dtors
 
 Actor::Actor(
-			std::shared_ptr<Scene> rootScene,
+			Scene * rootScene,
 			std::string shaderProgramName,
 			std::string modelName,
 			btRigidBody * body,
