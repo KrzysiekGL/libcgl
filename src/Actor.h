@@ -3,6 +3,7 @@
 
 #include "Model.h"
 #include "ShaderProgram.h"
+#include "Scene.h"
 
 #include <glm/glm.hpp>
 
@@ -14,11 +15,12 @@ namespace CGL {
 
 class Actor {
 public:
-	Actor();
+	Actor() {}
 
 	Actor(
-		std::shared_ptr<Model> sharedModel,
-		std::shared_ptr<ShaderProgram> sharedShaderProgram,
+		Scene * rootScene,
+		std::string shaderProgramName,
+		std::string modelName,
 		btRigidBody * body,
 		bool isTransparent);
 
@@ -51,8 +53,8 @@ public:
 	/*
 	 * Getters
 	 */
-	std::shared_ptr<Model> GetSharedModel() const;
-	std::shared_ptr<ShaderProgram> GetSharedShaderProgram() const;
+	std::string GetModelName() const;
+	std::string GetShaderProgramName() const;
 	btRigidBody * const GetRigidBody() const;
 	glm::mat4 GetModelMatrix() const;
 
@@ -62,9 +64,10 @@ public:
 	//void SetModelMatrix(glm::mat4 modelMatrix);
 
 private:
+	std::shared_ptr<Scene> rootScene;
 	std::string actorName;
-	std::shared_ptr<Model> sharedModel;
-	std::shared_ptr<ShaderProgram> sharedShaderProgram;
+	std::string shaderProgramName;
+	std::string modelName;
 	btRigidBody * body;
 	bool isTransparent;
 };

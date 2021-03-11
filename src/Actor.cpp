@@ -3,17 +3,18 @@
 namespace CGL {
 
 // - Ctors & Dtors
-Actor::Actor() {}
 
 Actor::Actor(
-			std::shared_ptr<Model> sharedModel,
-			std::shared_ptr<ShaderProgram> sharedShaderProgram,
+			std::shared_ptr<Scene> rootScene,
+			std::string shaderProgramName,
+			std::string modelName,
 			btRigidBody * body,
 			bool isTransparent
 			)
 {
-	this->sharedModel = sharedModel;
-	this->sharedShaderProgram = sharedShaderProgram;
+	this->rootScene = rootScene;
+	this->shaderProgramName = shaderProgramName;
+	this->modelName = modelName;
 	this->body = body;
 	this->isTransparent = isTransparent;
 }
@@ -43,19 +44,29 @@ void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	glm::mat4 modelMatrix;
 	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
 
+	// Get handles for ShaderProgram and Model
+	std::shared_ptr<ShaderProgram> shader; rootScene->GetShaderProgramPtr(shaderProgramName, shader);
+	std::shared_ptr<Model> model; rootScene->GetModelPtr(modelName, model);
+
+	// Check if shader and model are set
+	if(shader == nullptr || model == nullptr) {
+		std::cout << "CGL::ERRORR::ACTOR Shader ptr or Model ptr not set for rendering\n";
+		return;
+	}
+
 	// Render Actor
-	sharedShaderProgram->SetUniformMatrix4f("model", modelMatrix);
-	sharedShaderProgram->SetUniformMatrix4f("view", viewMatrix);
-	sharedShaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
-	sharedModel->Draw(sharedShaderProgram);
+	shader->SetUniformMatrix4f("model", modelMatrix);
+	shader->SetUniformMatrix4f("view", viewMatrix);
+	shader->SetUniformMatrix4f("projection", projectionMatrix);
+	model->Draw(shader);
 }
 
-std::shared_ptr<Model> Actor::GetSharedModel() const {
-	return sharedModel;
+std::string Actor::GetModelName() const {
+	return modelName;
 }
 
-std::shared_ptr<ShaderProgram> Actor::GetSharedShaderProgram() const {
-	return sharedShaderProgram;
+std::string Actor::GetShaderProgramName() const {
+	return shaderProgramName;
 }
 
 btRigidBody * const Actor::GetRigidBody() const {

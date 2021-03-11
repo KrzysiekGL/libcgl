@@ -87,7 +87,14 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 	modelCollection[model_name] = model;
 }
 
-std::string Scene::AddActor(std::string model_name, std::string shaderProgram_name, Shape shape, btScalar mass, glm::mat4 model_matrix, bool isTransparent) {
+std::string Scene::AddActor(
+		std::string model_name,
+		std::string shaderProgram_name,
+		Shape shape,
+		btScalar mass,
+		glm::mat4 model_matrix,
+		bool isTransparent)
+{
 	/*
 	 * Search if there are model_name and shaderProgram_name
 	 * present in the collections
@@ -151,12 +158,11 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
 
 	/*
 	 * store everything what is needed in the actor
-	 * and get pointers to model and shader collection to store them in the actor
+	 * especially set it's ShaderProgram, Model and the rootScene
 	 */
-	std::string actor_name = mit->first;
-	std::shared_ptr<Model> sharedModel = mit->second;
-	std::shared_ptr<ShaderProgram> sharedShaderProgram = spit->second;
-	std::shared_ptr<Actor> actor = std::make_shared<Actor>(sharedModel, sharedShaderProgram, body, isTransparent);
+	std::string modelName = mit->first;
+	std::string shaderProgramName = spit->first;
+	std::shared_ptr<Actor> actor = std::make_shared<Actor>(this, shaderProgramName, modelName, body, isTransparent);
 
 	/*
 	 * Name:
@@ -167,9 +173,10 @@ std::string Scene::AddActor(std::string model_name, std::string shaderProgram_na
  	 * For example: if there are already 3 actors with model "box"
  	 * then change actor_name from "box" to "box-3" (counting from 0)
 	 */
+	std::string actor_name = modelName;
 	unsigned int number = 0;
 	for(std::pair<std::string, std::shared_ptr<Actor>> a : actorCollection)
-		if(a.second->GetSharedModel() == actor->GetSharedModel())
+		if(a.first == actor->GetModelName())
 			number++;
 	actor_name = actor_name+"-"+std::to_string(number);
 	actor->SetActorName(actor_name);
@@ -244,6 +251,22 @@ std::vector<std::string> Scene::GetCameraCollectionNames() const {
 		it++;
 	}
 	return names;
+}
+
+void Scene::GetShaderProgramPtr(std::string shaderProgramName, std::shared_ptr<ShaderProgram> & shaderPtr) const {
+	auto it = shaderProgramCollection.find(shaderProgramName);
+	if(it == shaderProgramCollection.end())
+		shaderPtr = nullptr;
+	else
+		shaderPtr = it->second;
+}
+
+void Scene::GetModelPtr(std::string modelName, std::shared_ptr<Model> & modelPtr) const {
+	auto it = modelCollection.find(modelName);
+	if(it == modelCollection.end())
+		modelPtr = nullptr;
+	else
+		modelPtr = it->second;
 }
 
 glm::vec3 Scene::GetCameraPosition(std::string camera_name) const {

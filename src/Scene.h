@@ -18,19 +18,21 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include "ShaderProgram.h"
-#include "Camera.h"
-#include "Model.h"
-#include "Actor.h"
-
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+
+#include <btBulletDynamicsCommon.h>
 
 #include <vector>
 #include <map>
 #include <iterator>
 #include <memory>
+
+#include "ShaderProgram.h"
+#include "Camera.h"
+#include "Model.h"
+#include "Actor.h"
 
 namespace CGL {
 
@@ -128,6 +130,12 @@ public:
 	std::vector<std::string> GetModelCollectionNames() const;
 	std::vector<std::string> GetActorCollectionNames() const;
 	std::vector<std::string> GetCameraCollectionNames() const;
+
+	/*
+	 * Get std::shared_ptr to ShaderProgram/Model
+	 */
+	void GetShaderProgramPtr(std::string shaderProgramName, std::shared_ptr<ShaderProgram> & shaderPtr) const;
+	void GetModelPtr(std::string modelName, std::shared_ptr<Model> & modelPtr) const;
 
 	/*
 	 * Get camera parameters
