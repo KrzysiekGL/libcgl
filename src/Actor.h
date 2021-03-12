@@ -4,29 +4,24 @@
 #include "Resource.h"
 #include "ShaderProgram.h"
 #include "Model.h"
+#include "PrimitiveShape.h"
 
 #include <glm/glm.hpp>
 
 #include <btBulletDynamicsCommon.h>
 
-namespace CGL {
+#include <memory>
 
-class Scene; // forward declaration
+namespace CGL {
 
 class Actor : public Resource {
 public:
 	Actor(
 			std::string name,
-			Scene * rootScene,
-			ShaderProgram * shaderProgram,
-			Model * model,
-			btRigidBody * body,
+			std::shared_ptr<ShaderProgram> shaderProgram,
+			std::shared_ptr<Model> model,
+			std::shared_ptr<PrimitiveShape> shape,
 			bool isTransparent);
-
-	/*
-	 * Delete shape ptr
-	 */
-	~Actor();
 
 	/*
 	 * Delete Copy Constructor and operator=
@@ -45,14 +40,9 @@ public:
 	void SetLinearVelocity(glm::vec3 direction, float value);
 
 	/*
-	 * Set actor name
-	 */
-	void SetActorName(std::string actorName);
-
-	/*
 	 * Getters
 	 */
-	Resource * GetModelPtr() const;
+	std::shared_ptr<Model> GetModelPtr() const;
 	glm::mat4 GetModelMatrix() const;
 
 	/*
@@ -61,11 +51,9 @@ public:
 	//void SetModelMatrix(glm::mat4 modelMatrix);
 
 private:
-	Scene * rootScene;
-	std::string actorName;
-	ShaderProgram * shaderProgram;
-	Model * model;
-	btRigidBody * body;
+	std::shared_ptr<ShaderProgram> shaderProgram;
+	std::shared_ptr<Model> model;
+	std::shared_ptr<PrimitiveShape> shape;
 	bool isTransparent;
 };
 

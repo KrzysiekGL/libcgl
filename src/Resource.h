@@ -14,18 +14,13 @@ enum class Type {
 	CAMERA,
 	SHADERPROGRAM,
 	MODEL,
-	ACTOR
+	ACTOR,
+	PHYSICSBODY,
 };
 
 class Resource {
 public:
 	virtual ~Resource();
-
-	/*
-	 * Prevent from accidental copying of a Resource
-	 */
-	Resource(const Resource &other) = delete;
-	Resource& operator=(const Resource &other) = delete;
 
 	/*
 	 * Getters

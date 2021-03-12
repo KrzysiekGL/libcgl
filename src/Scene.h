@@ -18,6 +18,7 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
+#include "ResourceManager.h"
 #include "ShaderProgram.h"
 #include "Camera.h"
 #include "Model.h"
@@ -34,12 +35,6 @@
 #include <iterator>
 
 namespace CGL {
-
-enum class Shape {
-	BOX,
-	PLANE,
-	SPHERE,
-};
 
 class Scene {
 public:

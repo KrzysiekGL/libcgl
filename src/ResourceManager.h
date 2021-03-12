@@ -31,11 +31,14 @@ public:
 
 	/*
 	 * Add resource to the collection
+	 * Return true if success, otherwise return false
 	 */
-	void AddResource(std::shared_ptr<Resource> resource);
+	bool AddResource(std::shared_ptr<Resource> resource);
 
 	/*
-	 * Getters
+	 * Getters:
+	 * for vectors - return empty vector if nothing
+	 * for shared_ptr - return nullptr if nothing
 	 */
 	std::vector<std::string> GetAllResourcsByName() const;
 	std::vector<std::shared_ptr<Resource>> GetAllResourcesByType(Type type) const;

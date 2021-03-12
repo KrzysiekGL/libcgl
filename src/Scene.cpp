@@ -49,7 +49,7 @@ Scene::~Scene(){
 
 // - Public Methods
 void Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float pith, float yaw, float camera_sensitivity, float camera_speed){
-	cameraCollection[camera_name] = new Camera(camera_position, pith, yaw, camera_sensitivity, camera_speed);
+	cameraCollection[camera_name] = new Camera(camera_name, camera_position, pith, yaw, camera_sensitivity, camera_speed);
 }
 
 void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){

@@ -6,16 +6,17 @@ namespace CGL {
 ResourceManager::ResourceManager() {}
 /* Ctor & Dtor */
 /* Public Methods */
-void ResourceManager::AddResource(std::shared_ptr<Resource> resource) {
+bool ResourceManager::AddResource(std::shared_ptr<Resource> resource) {
 	// Check if Name is not taken
 	std::string name = resource->GetName();
 	auto it = collection.find(name);
 	if(!it == collection.end()) {
 		std::cout << "CGL::WARNING::RESOURCEMANAGER::ADDRESOURCE() Name " << name << " taken\n";
-		return;
+		return false;
 	}
 	// If Name is not taken add the resource to the collection
 	collection[name] = resource;
+	return true;
 } /* ResourceManager::AddResource(std::shared_ptr<Resource> resource) */
 
 std::vector<std::string> ResourceManager::GetAllResourcsByName() const {
