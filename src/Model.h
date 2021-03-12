@@ -11,6 +11,10 @@
 #ifndef MODELH
 #define MODELH
 
+#include "Resource.h"
+#include "ShaderProgram.h"
+#include "Mesh.h"
+
 #include <assimp/config.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -22,81 +26,76 @@
 #include <string>
 #include <vector>
 
-#include "Mesh.h"
-#include "ShaderProgram.h"
-
 namespace CGL {
 
+/*
+ * Load a texture from file and immediately store it on the GPU
+ * also set OpenGL's texture parameters (glTexParameteri)
+ * and generate Mipmaps
+ * Returns only a OpenGL's texture ID
+ * NOTE: If you are compiling this library on a Windows machine,
+ *       you have to define one of these flags:
+ *       - "WIN32"
+ *       - "_WIN32"
+ *       - "__WIN32"
+ *       Otherwise textures won't be vertically flip thus resulting
+ *       in unexpected behavior after rendering them
+ *       (for some reason it is not required on a GNU/Linux machine)
+ */
+unsigned int TextureFromFile(const char* file, const std::string directory, bool gamma = false);
+
+class Model : public Resource {
+public:
 	/*
-	 * Load a texture from file and immediately store it on the GPU
-	 * also set OpenGL's texture parameters (glTexParameteri)
-	 * and generate Mipmaps
-	 * Returns only a OpenGL's texture ID
-	 * NOTE: If you are compiling this library on a Windows machine,
-	 *       you have to define one of these flags:
-	 *       - "WIN32"
-	 *       - "_WIN32"
-	 *       - "__WIN32"
-	 *       Otherwise textures won't be vertically flip thus resulting
-	 *       in unexpected behavior after rendering them
-	 *       (for some reason it is not required on a GNU/Linux machine)
+	 * Load a 3D model binary from given path
 	 */
-	unsigned int TextureFromFile(const char* file, const std::string directory, bool gamma = false);
+	Model(std::string name, std::string path);
 
-	class Model {
-	public:
-		Model() {}
+	/*
+	 * Draw all meshes with a given ShaderProgram
+	 */
+	void Draw(ShaderProgram * shader);
 
-		/*
-		 * Load a 3D model binary from given path
-		 */
-		Model(std::string path);
+	/*
+	 * Get path to the model directory
+	 */
+	std::string GetDirectory() const;
 
-		/*
-		 * Draw all meshes with a given ShaderProgram
-		 */
-		void Draw(ShaderProgram * shader);
+private:
 
-		/*
-		 * Get path to the model directory
-		 */
-		std::string GetDirectory() const;
+	/*
+	 * Load a given 3D model with a Assimp importer and process all of Assimp's nodes
+	 */
+	void loadModel(std::string path);
 
-	private:
+	/*
+	 * Process Assimp's node:
+	 * - check if there are any meshes, and if so, process them
+	 * - check if this node is a parent node for another node
+	 */
+	void processNode(aiNode* node, const aiScene* scene);
 
-		/*
-		 * Load a given 3D model with a Assimp importer and process all of Assimp's nodes
-		 */
-		void loadModel(std::string path);
+	/*
+	 * Process Assimp's mesh:
+	 * - extract all vertices -- position, normal, texture coordinates
+	 *   (there are more provided from Assimp, but for now only those three are used)
+	 * - extract all indices from a mesh
+	 * - get all textures categorized by a texture type
+	 *   (here, only DIFFUESE and SPECULAR, but there are more)
+	 */
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
-		/*
-		 * Process Assimp's node:
-		 * - check if there are any meshes, and if so, process them
-		 * - check if this node is a parent node for another node
-		 */
-		void processNode(aiNode* node, const aiScene* scene);
+	/*
+	 * Extract all of textures by a given TYPE and return them as an array
+	 * Skip those that were already loaded
+	 */
+	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
-		/*
-		 * Process Assimp's mesh:
-		 * - extract all vertices -- position, normal, texture coordinates
-		 *   (there are more provided from Assimp, but for now only those three are used)
-		 * - extract all indices from a mesh
-		 * - get all textures categorized by a texture type
-		 *   (here, only DIFFUESE and SPECULAR, but there are more)
-		 */
-		Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-
-		/*
-		 * Extract all of textures by a given TYPE and return them as an array
-		 * Skip those that were already loaded
-		 */
-		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-
-		// model data
-		std::vector<Mesh> meshes;
-		std::vector<Texture> textures_loaded;
-		std::string directory;
-	};
+	// model data
+	std::vector<Mesh> meshes;
+	std::vector<Texture> textures_loaded;
+	std::string directory;
+};
 } // namespace CGL
 
 #endif // !MODELH

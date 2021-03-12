@@ -1,8 +1,9 @@
 #ifndef ACTOR_H_
 #define ACTOR_H_
 
-#include "Model.h"
+#include "Resource.h"
 #include "ShaderProgram.h"
+#include "Model.h"
 
 #include <glm/glm.hpp>
 
@@ -12,16 +13,15 @@ namespace CGL {
 
 class Scene; // forward declaration
 
-class Actor {
+class Actor : public Resource {
 public:
-	Actor() {}
-
 	Actor(
-		Scene * rootScene,
-		ShaderProgram * shaderProgram,
-		Model * model,
-		btRigidBody * body,
-		bool isTransparent);
+			std::string name,
+			Scene * rootScene,
+			ShaderProgram * shaderProgram,
+			Model * model,
+			btRigidBody * body,
+			bool isTransparent);
 
 	/*
 	 * Delete shape ptr
@@ -52,7 +52,7 @@ public:
 	/*
 	 * Getters
 	 */
-	Model * GetModelPtr() const;
+	Resource * GetModelPtr() const;
 	glm::mat4 GetModelMatrix() const;
 
 	/*

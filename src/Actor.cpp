@@ -3,16 +3,19 @@
 
 namespace CGL {
 
-// - Ctors & Dtors
-
+/* Ctor & Dtor */
 Actor::Actor(
-			Scene * rootScene,
-			ShaderProgram * shaderProgram,
-			Model * model,
-			btRigidBody * body,
-			bool isTransparent
-			)
+		std::string name,
+		Scene * rootScene,
+		ShaderProgram * shaderProgram,
+		Model * model,
+		btRigidBody * body,
+		bool isTransparent)
 {
+	// Resource configuration
+	setName(name); setType(Type::ACTOR);
+
+	// Actor configuration
 	this->rootScene = rootScene;
 	this->shaderProgram = shaderProgram;
 	this->model = model;
@@ -20,11 +23,9 @@ Actor::Actor(
 	this->isTransparent = isTransparent;
 }
 
-Actor::~Actor(){
-}
-// - END Ctros & Dtors
-
-// - Public Methods
+Actor::~Actor(){ }
+/* Ctor & Dtor */
+/* Public Methods */
 void Actor::SetLinearVelocity(glm::vec3 vec, float value) {
 	vec *= value;
 	btVector3 btDirection(vec.x, vec.y, vec.z);
@@ -52,7 +53,7 @@ void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	model->Draw(shaderProgram);
 }
 
-Model * Actor::GetModelPtr() const {
+Resource * Actor::GetModelPtr() const {
 	return model;
 }
 
@@ -70,6 +71,5 @@ glm::mat4 Actor::GetModelMatrix() const {
 //void Actor::SetModelMatrix(glm::mat4 modelMatrix) {
 //	this->modelMatrix = modelMatrix;
 //}
-// - END Public Methods
-
-}
+/* Public Methods */
+} /* namespace CGL */

@@ -9,6 +9,8 @@
 #ifndef SHADERHPP
 #define SHADERHPP
 
+#include "Resource.h"
+
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
@@ -28,19 +30,14 @@ namespace CGL {
 		FRAGMENT
 	};
 
-	class ShaderProgram {
+	class ShaderProgram : public Resource {
 	public:
-		// Constructors & Destructors
-
-		/*
-		 * Empty ShaderProgram object only contain default gl shader program with ID set to 0
-		 */
-		ShaderProgram();
+		// Ctor & Dtor
 
 		/*
 		 * Create a ShaderProgram from vertex and fragment shader source code
 		 */
-		ShaderProgram(const char* vertexFile, const char* fragmentFile);
+		ShaderProgram(std::string name, const char* vertexFile, const char* fragmentFile);
 
 		/*
 		 * OpenGL is given the information that this shader

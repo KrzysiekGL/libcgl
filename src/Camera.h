@@ -8,85 +8,86 @@
 #ifndef CAMERAH
 #define CAMERAH
 
+#include "Resource.h"
+
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace CGL {
-	class Camera {
-	public:
-		/*
-		 * Create a camera and assign default parameter's values
-		 */
-		Camera(glm::vec3 cameraPos, float pitch, float yaw, float camSensitivity, float camSpeed);
-		Camera(glm::vec3 cameraPos);
-		Camera();
 
-		/*
-		 * Get the VIEW MATRIX from a camera
-		 */
-		glm::mat4 GetViewMatrix() const;
+class Camera : public Resource {
 
-		/*
-		 * Get camera position
-		 */
-		glm::vec3 GetPosition() const;
+public:
+	/*
+	 * Create a camera and assign default parameter's values
+	 */
+	Camera(std::string name, glm::vec3 cameraPos=glm::vec3(0.f, 0.f, 2.f), float pitch=0.f, float yaw=-90.f, float camSensitivity=.1f, float camSpeed=2.f);
 
-		/*
-		 * Get camera front vector
-		 */
-		glm::vec3 GetFront() const;
+	/*
+	 * Get the VIEW MATRIX from a camera
+	 */
+	glm::mat4 GetViewMatrix() const;
 
-		/*
-		 * Handle keyboard input
-		 * Currently set to:
-		 * W - move camera front
-		 * S - move camera backwards
-		 * A - strife camera left
-		 * D - strife camera right
-		 * L_CRTL - move camera up
-		 * SPACE - move camera down
-		 */
-		void KeyInputProcess(GLFWwindow* window, float deltaTime);
+	/*
+	 * Get camera position
+	 */
+	glm::vec3 GetPosition() const;
 
-		// TODO Implement mouse picking
-		/*
-		 * Handle mouse input
-		 * Camera is using pitch and yaw of Euler angles (roll is not handled)
-		 * Currently set to:
-		 * M_VERT_UP - pitch camera up
-		 * M_VERT_DOWN - pitch camera down
-		 * M_HORIZ_LEFT - yaw camera left
-		 * M_HORIZ_RIGHT - yaw camera right
-		 */
-		void MouseInputProcess(GLFWwindow* window);
+	/*
+	 * Get camera front vector
+	 */
+	glm::vec3 GetFront() const;
 
-		/*
-		 * Change camera speed
-		 */
-		void SetCameraSpeed(float value);
+	/*
+	 * Handle keyboard input
+	 * Currently set to:
+	 * W - move camera front
+	 * S - move camera backwards
+	 * A - strife camera left
+	 * D - strife camera right
+	 * L_CRTL - move camera up
+	 * SPACE - move camera down
+	 */
+	void KeyInputProcess(GLFWwindow* window, float deltaTime);
 
-	private:
-		/*
-		 * Update camera's parameters (fields)
-		 * after they were changed, so the VIEW MATRIX
-		 * will be changed as well
-		 */
-		void updateCameraVectors();
+	// TODO Implement mouse picking
+	/*
+	 * Handle mouse input
+	 * Camera is using pitch and yaw of Euler angles (roll is not handled)
+	 * Currently set to:
+	 * M_VERT_UP - pitch camera up
+	 * M_VERT_DOWN - pitch camera down
+	 * M_HORIZ_LEFT - yaw camera left
+	 * M_HORIZ_RIGHT - yaw camera right
+	 */
+	void MouseInputProcess(GLFWwindow* window);
 
-		float
-			cameraSpeed,
-			cameraSensitivity,
-			pitch,
-			yaw;
+	/*
+	 * Change camera speed
+	 */
+	void SetCameraSpeed(float value);
 
-		glm::vec3
-			cameraPos,
-			cameraRevDir,
-			cameraRight,
-			cameraUp;
-	};
-} // namespace CGL
+private:
+	/*
+	 * Update camera's parameters (fields)
+	 * after they were changed, so the VIEW MATRIX
+	 * will be changed as well
+	 */
+	void updateCameraVectors();
 
-#endif // !CAMERAH
+	float
+		cameraSpeed,
+		cameraSensitivity,
+		pitch,
+		yaw;
+
+	glm::vec3
+		cameraPos,
+		cameraRevDir,
+		cameraRight,
+		cameraUp;
+};
+} /* namespace CGL */
+#endif /* !CAMERAH */
