@@ -32,7 +32,6 @@
 #include <vector>
 #include <map>
 #include <iterator>
-#include <memory>
 
 namespace CGL {
 
@@ -67,7 +66,7 @@ public:
 
 	/*
 	 * Scene can contain many Cameras. References to them are
-	 * stored in the cameraCollection map<std::string, std::shared_ptr<Camera>>.
+	 * stored in the cameraCollection map<std::string, Camera* >.
 	 */
 	void AddCamera(
 			std::string camera_name,
@@ -77,8 +76,8 @@ public:
 			float camera_speed=2.f);
 
 	/*
-	 * ShaderPrograms are stored in shaderColleciton map<std::string, std::shared_ptr<ShaderProgram>>
-	 * and Models are stored in modelCollection map<std::string, std::shared_ptr<Model>>.
+	 * ShaderPrograms are stored in shaderColleciton map<std::string, ShaderProgram* >
+	 * and Models are stored in modelCollection map<std::string, Model* >.
 	 * Each ShaderProgram and Model is associated with a name (std::string).
 	 */
 	void AddShaderProgram(std::string shader_name, std::string vert_path, std::string frag_path);
@@ -90,7 +89,7 @@ public:
 	 * Both Model and ShaderProgram objects has to be present at the time
 	 * of calling AddActor().
 	 * References to all Actors are stored in the actorCollection
-	 * map<std::string, std::shared_ptr<Actor>>.
+	 * map<std::string, Actor* >.
 	 *
 	 * Actor consist of a Model and information about with which
 	 * ShaderProgram it should be rendered. Actor is also associated
@@ -132,10 +131,10 @@ public:
 	std::vector<std::string> GetCameraCollectionNames() const;
 
 	/*
-	 * Get std::shared_ptr to ShaderProgram/Model
+	 * Get ptr to ShaderProgram/Model
 	 */
-	void GetShaderProgramPtr(std::string shaderProgramName, std::shared_ptr<ShaderProgram> & shaderPtr) const;
-	void GetModelPtr(std::string modelName, std::shared_ptr<Model> & modelPtr) const;
+	ShaderProgram * GetShaderProgramPtr(std::string shaderProgramName) const;
+	Model * GetModelPtr(std::string modelName) const;
 
 	/*
 	 * Get camera parameters
@@ -146,7 +145,7 @@ public:
 private:
 	/*
 	 * Collection of Models/ShaderPrograms/Actors/Cameras
-	 * present in the Scene in form of a map<std::string, std::shared_ptr<T>>.
+	 * present in the Scene in form of a map<std::string, T* >.
 	 *
 	 * Model - 3D/2D models placed in the world space
 	 *
@@ -159,13 +158,13 @@ private:
 	 * Camera - object to move and interact with a scene
 	 *          also generates perspective and view matrices
 	 */
-	std::map<std::string, std::shared_ptr<Model>> modelCollection;
-	std::map<std::string, std::shared_ptr<ShaderProgram>> shaderProgramCollection;
+	std::map<std::string, Model* > modelCollection;
+	std::map<std::string, ShaderProgram * > shaderProgramCollection;
 	// TODO Add actor collection sorting with regard to transparency in the AddActor()
-	std::map<std::string, std::shared_ptr<Actor>> actorCollection;
+	std::map<std::string, Actor * > actorCollection;
 	// Camera Collection and currently used Camera
-	std::map<std::string, std::shared_ptr<Camera>> cameraCollection;
-	std::shared_ptr<Camera> current_camera;
+	std::map<std::string, Camera * > cameraCollection;
+	Camera * current_camera;
 	// Is freeCam mode enabled (affect all Cameras)
 	bool freeCam;
 

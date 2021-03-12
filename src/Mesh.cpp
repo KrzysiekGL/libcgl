@@ -9,7 +9,7 @@ namespace CGL {
 // - END Ctors & Dtors
 
 // - Public Methods
-	void Mesh::Draw(std::shared_ptr<ShaderProgram> shader) {
+	void Mesh::Draw(ShaderProgram * shader) {
 		shader->Use();
 
 		unsigned int diffuseNr = 1;

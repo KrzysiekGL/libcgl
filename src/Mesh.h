@@ -14,7 +14,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "ShaderProgram.h"
 
@@ -49,7 +48,7 @@ namespace CGL {
 		/*
 		 * Render a mesh using given ShaderProgram
 		 */
-		void Draw(std::shared_ptr<ShaderProgram> shader);
+		void Draw(ShaderProgram * shader);
 
 		/*
 		 * Mesh data

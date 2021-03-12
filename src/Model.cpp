@@ -9,7 +9,7 @@ namespace CGL {
 // - END Ctors & Dtors
 
 // - Public Methods
-	void Model::Draw(std::shared_ptr<ShaderProgram> shader) {
+	void Model::Draw(ShaderProgram * shader) {
 		for (Mesh& mesh : meshes)
 			mesh.Draw(shader);
 	}
@@ -31,7 +31,7 @@ namespace CGL {
 
 	#ifdef _DEBUG
 		if (textureID == 0) {
-			printf("ERROR::SOIL2::LOADING: '%s'\n", SOIL_last_result());
+			printf("CGL::ERROR::MODEL::SOIL2::LOADING '%s'\n", SOIL_last_result());
 			return textureID;
 		}
 	#endif // _DEBUG
@@ -58,14 +58,14 @@ namespace CGL {
 		const aiScene* scene = importer.ReadFile(
 			path,
 			aiProcess_Triangulate |
-	//		aiProcess_FlipUVs |
+	//		aiProcess_FlipUVs | // commented on purpose, don't uncomment
 			aiProcess_GenSmoothNormals |
 			aiProcess_CalcTangentSpace
 		);
 
 		if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode) {
 #ifdef _DEBUG
-			std::cout << "ERROR:ASSIMP::" << importer.GetErrorString() << std::endl;
+			std::cout << "CGL::ERROR::MODEL::ASSIMP " << importer.GetErrorString() << std::endl;
 #endif //_DEBUG
 			return;
 		}

@@ -8,8 +8,6 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include <memory>
-
 namespace CGL {
 
 class Scene; // forward declaration
@@ -20,8 +18,8 @@ public:
 
 	Actor(
 		Scene * rootScene,
-		std::string shaderProgramName,
-		std::string modelName,
+		ShaderProgram * shaderProgram,
+		Model * model,
 		btRigidBody * body,
 		bool isTransparent);
 
@@ -54,9 +52,7 @@ public:
 	/*
 	 * Getters
 	 */
-	std::string GetModelName() const;
-	std::string GetShaderProgramName() const;
-	btRigidBody * const GetRigidBody() const;
+	Model * GetModelPtr() const;
 	glm::mat4 GetModelMatrix() const;
 
 	/*
@@ -67,8 +63,8 @@ public:
 private:
 	Scene * rootScene;
 	std::string actorName;
-	std::string shaderProgramName;
-	std::string modelName;
+	ShaderProgram * shaderProgram;
+	Model * model;
 	btRigidBody * body;
 	bool isTransparent;
 };

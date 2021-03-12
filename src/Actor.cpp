@@ -7,15 +7,15 @@ namespace CGL {
 
 Actor::Actor(
 			Scene * rootScene,
-			std::string shaderProgramName,
-			std::string modelName,
+			ShaderProgram * shaderProgram,
+			Model * model,
 			btRigidBody * body,
 			bool isTransparent
 			)
 {
 	this->rootScene = rootScene;
-	this->shaderProgramName = shaderProgramName;
-	this->modelName = modelName;
+	this->shaderProgram = shaderProgram;
+	this->model = model;
 	this->body = body;
 	this->isTransparent = isTransparent;
 }
@@ -45,33 +45,15 @@ void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	glm::mat4 modelMatrix;
 	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
 
-	// Get handles for ShaderProgram and Model
-	std::shared_ptr<ShaderProgram> shader; rootScene->GetShaderProgramPtr(shaderProgramName, shader);
-	std::shared_ptr<Model> model; rootScene->GetModelPtr(modelName, model);
-
-	// Check if shader and model are set
-	if(shader == nullptr || model == nullptr) {
-		std::cout << "CGL::ERRORR::ACTOR Shader ptr or Model ptr not set for rendering\n";
-		return;
-	}
-
 	// Render Actor
-	shader->SetUniformMatrix4f("model", modelMatrix);
-	shader->SetUniformMatrix4f("view", viewMatrix);
-	shader->SetUniformMatrix4f("projection", projectionMatrix);
-	model->Draw(shader);
+	shaderProgram->SetUniformMatrix4f("model", modelMatrix);
+	shaderProgram->SetUniformMatrix4f("view", viewMatrix);
+	shaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
+	model->Draw(shaderProgram);
 }
 
-std::string Actor::GetModelName() const {
-	return modelName;
-}
-
-std::string Actor::GetShaderProgramName() const {
-	return shaderProgramName;
-}
-
-btRigidBody * const Actor::GetRigidBody() const {
-	return body;
+Model * Actor::GetModelPtr() const {
+	return model;
 }
 
 glm::mat4 Actor::GetModelMatrix() const {

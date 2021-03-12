@@ -12,32 +12,33 @@ namespace CGL {
 	ShaderProgram::ShaderProgram(const char* vertexFile, const char* fragmentFile) {
 		vertex_path = std::string(vertexFile);
 		fragment_path = std::string(fragmentFile);
-		this->ID = glCreateProgram();
+		ID = glCreateProgram();
 
 		addShaderToProgram(vertexFile, ShaderType::VERTEX);
 		addShaderToProgram(fragmentFile, ShaderType::FRAGMENT);
 
-		glLinkProgram(this->ID);
+		glLinkProgram(ID);
 #ifdef _DEBUG
 		int success;
-		glGetProgramiv(this->ID, GL_LINK_STATUS, &success);
+		glGetProgramiv(ID, GL_LINK_STATUS, &success);
 		if (!success) {
 			char infoLog[512];
-			glGetProgramInfoLog(this->ID, 512, NULL, infoLog);
-			std::cout << "CGL::ERROR::GL::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			glGetProgramInfoLog(ID, 512, NULL, infoLog);
+			std::cout << "CGL::ERROR::GL::SHADERPROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 			std::cout << "Program created, but could not be linked\n";
 		}
 #endif // _DEBUG
 	}
 
 	ShaderProgram::~ShaderProgram() {
+		std::cout << "CGL::INFO::SHADERPROGRAM ShaderProgram ID: " << ID << " deleted\n";
 		glDeleteProgram(this->ID);
 	}
 // - END Ctors & Dtors
 
 // - Public Methods
-	void ShaderProgram::SetUniform1i(std::string name, int value) {
-		int	location = glGetUniformLocation(ID, name.c_str());
+	void ShaderProgram::SetUniform1i(const char * name, int value) {
+		int	location = glGetUniformLocation(ID, name);
 #ifdef _DEBUG
 		if(-1==location)
 			std::cout << "CGL::ERROR::SHADERPROGRAM::Returned value of location is " << location <<
@@ -47,15 +48,15 @@ namespace CGL {
 		if(-1!=location) glUniform1i(location, value);
 	}
 
-	void ShaderProgram::SetUniformMatrix4f(std::string name, glm::mat4 mat) { // @suppress("Type cannot be resolved") // @suppress("Member declaration not found")
-		int location = glGetUniformLocation(this->ID, name.c_str());
+	void ShaderProgram::SetUniformMatrix4f(const char * name, glm::mat4 mat) {
+		int location = glGetUniformLocation(this->ID, name);
 #ifdef _DEBUG
 		if(-1==location)
 			std::cout << "CGL::ERROR::SHADERPROGRAM::Returned value of location is " << location <<
 				" Name \"" << name << "\" doesn't correspond to an active unifrom variable in program or" <<
 				" name starts with the reserved prefix \"gl_\".\n";
 #endif //_DEBUG
-		if(-1!=location) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)); // @suppress("Invalid arguments")
+		if(-1!=location) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 	}
 
 	std::string ShaderProgram::GetVertexPath() const {
@@ -109,7 +110,7 @@ namespace CGL {
 				glDeleteShader(shader);
 			}
 			else {
-				glAttachShader(this->ID, shader);
+				glAttachShader(ID, shader);
 				glDeleteShader(shader);
 			}
 	}

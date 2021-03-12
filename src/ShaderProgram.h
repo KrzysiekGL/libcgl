@@ -71,8 +71,8 @@ namespace CGL {
 		 * Bunch of setters for setting uniforms
 		 * inside shader programs (written in GLSL)
 		 */
-		void SetUniform1i(std::string name, int v);
-		void SetUniformMatrix4f(std::string name, glm::mat4 mat);
+		void SetUniform1i(const char * name, int v);
+		void SetUniformMatrix4f(const char * name, glm::mat4 mat);
 
 		/*
 		 * Get vertex or fragment shader source file path

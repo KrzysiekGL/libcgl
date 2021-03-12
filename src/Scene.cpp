@@ -25,27 +25,41 @@ Scene::Scene() {
 }
 
 Scene::~Scene(){
+	// Delete all Bullet members
 	delete dynamicWorld;
 	delete solver;
 	delete broadphaseInterface;
 	delete dispatcher;
 	delete collisionConfiguration;
+
+	// Delete rest of the private members
+	for(auto & actor : actorCollection)
+		delete(actor.second);
+
+	for(auto & shader : shaderProgramCollection)
+		delete(shader.second);
+
+	for(auto & model : modelCollection)
+		delete(model.second);
+
+	for(auto & cam : cameraCollection)
+		delete(cam.second);
 }
 // -  END Constructors & Destructors
 
 // - Public Methods
 void Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float pith, float yaw, float camera_sensitivity, float camera_speed){
-	cameraCollection[camera_name] = std::make_shared<Camera>(camera_position, pith, yaw, camera_sensitivity, camera_speed);
+	cameraCollection[camera_name] = new Camera(camera_position, pith, yaw, camera_sensitivity, camera_speed);
 }
 
 void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){
 	// Check first if given ShaderProgram doesn't exist yet in the collection
 
 	// search for the same name
-	std::map<std::string, std::shared_ptr<ShaderProgram>>::iterator it = shaderProgramCollection.find(shader_name);
+	auto it = shaderProgramCollection.find(shader_name);
 	if(it != shaderProgramCollection.end()) return;
 
-	std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(vertex_path.c_str(), fragment_path.c_str());
+	ShaderProgram * shader = new ShaderProgram(vertex_path.c_str(), fragment_path.c_str());
 
 	// search for the same ShaderProgram by shader's source paths
 	it=shaderProgramCollection.begin();
@@ -67,10 +81,10 @@ void Scene::AddModel(std::string model_name, std::string model_path){
 	// Check first if given Model doesn't exist yet in the collection
 
 	// Search for the same name
-	std::map<std::string, std::shared_ptr<Model>>::iterator it = modelCollection.find(model_name);
+	auto it = modelCollection.find(model_name);
 	if(it != modelCollection.end()) return;
 
-	std::shared_ptr<Model> model = std::make_shared<Model>(model_path.c_str());
+	Model * model = new Model(model_path.c_str());
 
 	// Search for the same Model by directory
 	it=modelCollection.begin();
@@ -100,7 +114,7 @@ std::string Scene::AddActor(
 	 * present in the collections
 	 */
 	// Model search
-	std::map<std::string, std::shared_ptr<Model>>::iterator mit = modelCollection.find(model_name);
+	auto mit = modelCollection.find(model_name);
 	if(mit == modelCollection.end()){
 #ifdef _DEBUG
 		std::cout << "CGL::ERROR::SCENE No \"" << model_name << "\" Model found in the scene\n";
@@ -109,7 +123,7 @@ std::string Scene::AddActor(
 	}
 
 	// ShaderProgram search
-	std::map<std::string, std::shared_ptr<ShaderProgram>>::iterator spit = shaderProgramCollection.find(shaderProgram_name);
+	auto spit = shaderProgramCollection.find(shaderProgram_name);
 	if(spit == shaderProgramCollection.end()){
 #ifdef _DEBUG
 		std::cout << "CGL::ERROR::SCENE No \"" << shaderProgram_name << "\" ShaderProgram found in the Scene\n";
@@ -118,7 +132,7 @@ std::string Scene::AddActor(
 	}
 
 	/*
-	 * If both are present, then create a new shared_ptr to Actor,
+	 * If both are present, then create a new ptr to Actor,
 	 * generate a name and put it into collection
 	 */
 	// create a rigid body and add it to the Dynamic World; also store collision shape in the actor
@@ -160,9 +174,7 @@ std::string Scene::AddActor(
 	 * store everything what is needed in the actor
 	 * especially set it's ShaderProgram, Model and the rootScene
 	 */
-	std::string modelName = mit->first;
-	std::string shaderProgramName = spit->first;
-	std::shared_ptr<Actor> actor = std::make_shared<Actor>(this, shaderProgramName, modelName, body, isTransparent);
+	Actor * actor = new Actor(this, spit->second, mit->second, body, isTransparent);
 
 	/*
 	 * Name:
@@ -173,10 +185,10 @@ std::string Scene::AddActor(
  	 * For example: if there are already 3 actors with model "box"
  	 * then change actor_name from "box" to "box-3" (counting from 0)
 	 */
-	std::string actor_name = modelName;
+	std::string actor_name = mit->first;
 	unsigned int number = 0;
-	for(std::pair<std::string, std::shared_ptr<Actor>> a : actorCollection)
-		if(a.first == actor->GetModelName())
+	for(auto actorElement : actorCollection)
+		if(actorElement.second->GetModelPtr() == actor->GetModelPtr())
 			number++;
 	actor_name = actor_name+"-"+std::to_string(number);
 	actor->SetActorName(actor_name);
@@ -189,7 +201,10 @@ std::string Scene::AddActor(
 
 void Scene::DelActor(std::string actorName) {
 	auto it = actorCollection.find(actorName);
-	if(it != actorCollection.end()) actorCollection.erase(it);
+	if(it != actorCollection.end()) {
+		delete(it->second);
+		actorCollection.erase(it);
+	}
 } /* Scene::DelActor(actorName) */
 
 void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool freeCam) {
@@ -207,7 +222,7 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool free
 }
 
 void Scene::SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value) {
-	std::map<std::string, std::shared_ptr<Actor>>::iterator it = actorCollection.find(actor_name);
+	auto it = actorCollection.find(actor_name);
 	if(it != actorCollection.end())
 		it->second->SetLinearVelocity(direction, value);
 }
@@ -253,20 +268,16 @@ std::vector<std::string> Scene::GetCameraCollectionNames() const {
 	return names;
 }
 
-void Scene::GetShaderProgramPtr(std::string shaderProgramName, std::shared_ptr<ShaderProgram> & shaderPtr) const {
+ShaderProgram * Scene::GetShaderProgramPtr(std::string shaderProgramName) const {
 	auto it = shaderProgramCollection.find(shaderProgramName);
-	if(it == shaderProgramCollection.end())
-		shaderPtr = nullptr;
-	else
-		shaderPtr = it->second;
+	if(it == shaderProgramCollection.end()) return nullptr;
+	return it->second;
 }
 
-void Scene::GetModelPtr(std::string modelName, std::shared_ptr<Model> & modelPtr) const {
+Model * Scene::GetModelPtr(std::string modelName) const {
 	auto it = modelCollection.find(modelName);
-	if(it == modelCollection.end())
-		modelPtr = nullptr;
-	else
-		modelPtr = it->second;
+	if(it == modelCollection.end()) return nullptr;
+	return it->second;
 }
 
 glm::vec3 Scene::GetCameraPosition(std::string camera_name) const {

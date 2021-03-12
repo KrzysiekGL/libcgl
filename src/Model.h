@@ -21,7 +21,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "Mesh.h"
 #include "ShaderProgram.h"
@@ -56,7 +55,7 @@ namespace CGL {
 		/*
 		 * Draw all meshes with a given ShaderProgram
 		 */
-		void Draw(std::shared_ptr<ShaderProgram> shader);
+		void Draw(ShaderProgram * shader);
 
 		/*
 		 * Get path to the model directory
