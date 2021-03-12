@@ -1,10 +1,3 @@
-/*
- * Resource.cpp
- *
- *  Created on: Mar 12, 2021
- *      Author: code
- */
-
 #include "Resource.h"
 
 namespace CGL {
