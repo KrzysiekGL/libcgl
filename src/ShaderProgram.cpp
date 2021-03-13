@@ -28,7 +28,7 @@ ShaderProgram::ShaderProgram(std::string name, const char* vertexFile, const cha
 }
 
 ShaderProgram::~ShaderProgram() {
-	std::cout << "CGL::INFO::SHADERPROGRAM ShaderProgram ID: " << ID << " deleted\n";
+//	std::cout << "CGL::INFO::SHADERPROGRAM ShaderProgram ID: " << ID << " deleted\n";
 	glDeleteProgram(this->ID);
 }
 /* Ctor & Dtor */

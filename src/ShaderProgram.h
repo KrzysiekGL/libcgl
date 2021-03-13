@@ -25,6 +25,7 @@
 #include <fstream>
 
 namespace CGL {
+
 	enum class ShaderType {
 		VERTEX,
 		FRAGMENT

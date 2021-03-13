@@ -40,7 +40,7 @@ public:
 	 * for vectors - return empty vector if nothing
 	 * for shared_ptr - return nullptr if nothing
 	 */
-	std::vector<std::string> GetAllResourcsByName() const;
+	std::vector<std::string> GetAllResourcesNames() const;
 	std::vector<std::shared_ptr<Resource>> GetAllResourcesByType(Type type) const;
 	std::shared_ptr<Resource> GetResourceByName(std::string name) const;
 

@@ -10,7 +10,7 @@ bool ResourceManager::AddResource(std::shared_ptr<Resource> resource) {
 	// Check if Name is not taken
 	std::string name = resource->GetName();
 	auto it = collection.find(name);
-	if(!it == collection.end()) {
+	if(it != collection.end()) {
 		std::cout << "CGL::WARNING::RESOURCEMANAGER::ADDRESOURCE() Name " << name << " taken\n";
 		return false;
 	}
@@ -19,7 +19,7 @@ bool ResourceManager::AddResource(std::shared_ptr<Resource> resource) {
 	return true;
 } /* ResourceManager::AddResource(std::shared_ptr<Resource> resource) */
 
-std::vector<std::string> ResourceManager::GetAllResourcsByName() const {
+std::vector<std::string> ResourceManager::GetAllResourcesNames() const {
 	std::vector<std::string> names;
 	for(auto & pair : collection)
 		names.push_back(pair.first);

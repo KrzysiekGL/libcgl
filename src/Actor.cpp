@@ -28,7 +28,7 @@ void Actor::SetLinearVelocity(glm::vec3 vec, float value) {
 } /* Actor::SetLinearVelocity(...) */
 
 void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
-	glm::mat4 modelMatrix = GetModelMatrix();
+	glm::mat4 modelMatrix = shape->GetModelMatrix();
 
 	// Render Actor
 	shaderProgram->SetUniformMatrix4f("model", modelMatrix);
@@ -42,9 +42,7 @@ std::shared_ptr<Model> Actor::GetModelPtr() const {
 }
 
 glm::mat4 Actor::GetModelMatrix() const {
-	glm::mat4 modelMatrix;
-	shape->GetModelMatrix(modelMatrix);
-	return modelMatrix;
+	return shape->GetModelMatrix();
 }
 
 //void Actor::SetModelMatrix(glm::mat4 modelMatrix) {

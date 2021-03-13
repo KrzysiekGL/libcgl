@@ -51,14 +51,16 @@ void PrimitiveShape::SetupSpeher(btDiscreteDynamicsWorld * dynamicWorld, glm::ma
 	setupRigidBody(dynamicWorld, bulletShape, initialModelMatrix, mass);
 } /* PrimitiveShape::SetupSpeher(btDiscreteDynamicsWorld * dynamicWorld, glm::mat4 initialModelMatrix, btScalar mass, btScalar sphereRadius) */
 
-void PrimitiveShape::GetModelMatrix(glm::mat4 & matrix) {
+glm::mat4 PrimitiveShape::GetModelMatrix() const {
 	btTransform transform;
 	if(body && body->getMotionState())
 		body->getMotionState()->getWorldTransform(transform);
 	else
 		transform = body->getWorldTransform();
+
 	glm::mat4 modelMatrix;
 	transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
+	return modelMatrix;
 } /* PrimitiveShape::GetModelMatrix(glm::mat4 & matrix) */
 
 void PrimitiveShape::SetLinearVelocity(btVector3 vector, btScalar value) {

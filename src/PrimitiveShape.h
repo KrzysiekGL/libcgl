@@ -11,6 +11,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <string>
@@ -56,7 +57,7 @@ public:
 	/*
 	 * Get model matrix from body motion state
 	 */
-	void GetModelMatrix(glm::mat4 & matrix) const;
+	glm::mat4 GetModelMatrix() const;
 
 	/*
 	 * Set linear velocity of a body

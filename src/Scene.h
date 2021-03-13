@@ -63,7 +63,7 @@ public:
 	 * Scene can contain many Cameras. References to them are
 	 * stored in the cameraCollection map<std::string, Camera* >.
 	 */
-	void AddCamera(
+	std::string AddCamera(
 			std::string camera_name,
 			glm::vec3 camera_position=glm::vec3(0.f, 0.f, 3.f),
 			float pith=0.f, float yaw=-90.f,
@@ -71,35 +71,25 @@ public:
 			float camera_speed=2.f);
 
 	/*
-	 * ShaderPrograms are stored in shaderColleciton map<std::string, ShaderProgram* >
-	 * and Models are stored in modelCollection map<std::string, Model* >.
-	 * Each ShaderProgram and Model is associated with a name (std::string).
+	 * Model (loaded wit Assimp) and ShaderProgram for rendering
 	 */
-	void AddShaderProgram(std::string shader_name, std::string vert_path, std::string frag_path);
-	void AddModel(std::string model_name, std::string model_path);
+	std::string AddShaderProgram(std::string shader_name, std::string vert_path, std::string frag_path);
+	std::string AddModel(std::string model_name, std::string model_path);
 
-	// TODO Add method to modify Actor's model matrix
+
 	/*
 	 * This method adds Actor to the scene.
-	 * Both Model and ShaderProgram objects has to be present at the time
-	 * of calling AddActor().
-	 * References to all Actors are stored in the actorCollection
-	 * map<std::string, Actor* >.
-	 *
-	 * Actor consist of a Model and information about with which
-	 * ShaderProgram it should be rendered. Actor is also associated
-	 * with btRigidBody.
-	 *
-	 * If Model/ShaderProgram with the given name doesn't exist,
-	 * `false` will be returned, otherwise `true`.
+	 * Model, ShaderProgram and PrimitiveShape objects has to be
+	 * present at the time of calling AddActor()
 	 */
-	std::string AddActor(
-			std::string model_name,
-			std::string shader_name,
-			Shape shape,
-			btScalar mass=0.f,
-			glm::mat4 model_matrix=glm::mat4(1.f),
-			bool isTransparnt=false);
+	std::string AddActor(std::string actor_name, std::string model_name, std::string shaderProgram_name, std::string primitiveShape_name, bool isTransparent=false);
+
+	/*
+	 * Add physics primitives for actors
+	 */
+	std::string AddPrimitivePlane(std::string body_name, glm::mat4 modelMatrix, btVector3 planeNormal, btScalar planeConstatnt);
+	std::string AddPrimitiveBox(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btVector3 boxDimensions);
+	std::string AddPrimitiveSphere(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btScalar sphereRadius);
 
 	/*
 	 * Delete an Actor from the collection
@@ -118,48 +108,28 @@ public:
 	void RunScene(GLFWwindow* window, float deltaFrame, bool freeze, bool freeCam);
 
 	/*
-	 * Get names of ShaderPrograms/Models/Actors loaded into scene
+	 * Get names of Resources of a given Type loaded into the ResourceManger
 	 */
-	std::vector<std::string> GetShaderProgramCollectionNames() const;
-	std::vector<std::string> GetModelCollectionNames() const;
-	std::vector<std::string> GetActorCollectionNames() const;
-	std::vector<std::string> GetCameraCollectionNames() const;
+	std::vector<std::string> GetCollectionNames(Type type) const;
 
 	/*
-	 * Get ptr to ShaderProgram/Model
+	 * Get current camera parameters
 	 */
-	ShaderProgram * GetShaderProgramPtr(std::string shaderProgramName) const;
-	Model * GetModelPtr(std::string modelName) const;
-
-	/*
-	 * Get camera parameters
-	 */
-	glm::vec3 GetCameraPosition(std::string camera_name="Camera-00") const;
-	glm::vec3 GetCameraFront(std::string camera_name="Camera-00") const;
+	glm::vec3 GetCameraPosition() const;
+	glm::vec3 GetCameraFront() const;
 
 private:
 	/*
-	 * Collection of Models/ShaderPrograms/Actors/Cameras
-	 * present in the Scene in form of a map<std::string, T* >.
-	 *
-	 * Model - 3D/2D models placed in the world space
-	 *
-	 * ShaderProgram - GL shader programs to render Models
-	 *
-	 * Actor - pair of Model and ShaderProgram with information
-	 *         with information if it's transparent and what
-	 *         is it's Model Matrix
-	 *
-	 * Camera - object to move and interact with a scene
-	 *          also generates perspective and view matrices
+	 * Screen width and height from GLFW frame buffer
+	 * for calculating projection matrix.
 	 */
-	std::map<std::string, Model* > modelCollection;
-	std::map<std::string, ShaderProgram * > shaderProgramCollection;
-	// TODO Add actor collection sorting with regard to transparency in the AddActor()
-	std::map<std::string, Actor * > actorCollection;
-	// Camera Collection and currently used Camera
-	std::map<std::string, Camera * > cameraCollection;
-	Camera * current_camera;
+	float scr_width; float scr_height;
+
+	/*
+	 * Collection of Models/ShaderPrograms/Actors/Cameras in a ResourceManager
+	 */
+	std::shared_ptr<ResourceManager> rman;
+	std::shared_ptr<Camera> current_camera;
 	// Is freeCam mode enabled (affect all Cameras)
 	bool freeCam;
 
@@ -175,10 +145,13 @@ private:
 	btDiscreteDynamicsWorld * dynamicWorld;
 
 	/*
-	 * Screen width and height from GLFW frame buffer
-	 * for calculating projection matrix.
+	 * Get shared_ptr to specific resources
 	 */
-	float scr_width; float scr_height;
+	std::shared_ptr<ShaderProgram> getShaderProgram(std::string shaderProgram_name);
+	std::shared_ptr<PrimitiveShape> getPrimitiveShape(std::string primitiveShape_name);
+	std::shared_ptr<Model> getModel(std::string model_name);
+	std::shared_ptr<Camera> getCamera(std::string camera_name);
+	std::shared_ptr<Actor> getActor(std::string actor_name);
 
 	/*
 	 * Draw all actors with respect of their model matrices.
@@ -190,14 +163,12 @@ private:
 	 */
 	void updateSceneParameters(GLFWwindow* window);
 
-	// TODO Modify scene with keyboard
 	/*
 	 * In freeCam mode pass keyboard input to a Camera object.
 	 * Otherwise take control over Actors and Scene.
 	 */
 	void handleKeyboardInput(GLFWwindow* window, float deltaTime);
 
-	// TODO Mouse picking with Camera object
 	/*
 	 * In freeCam mode pass mouse input to a Camera object.
 	 * Otherwise take control over Actors and Scene.

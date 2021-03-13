@@ -2,17 +2,20 @@
 
 namespace CGL {
 
-// - Constructors & Destructors
+/* Ctor & Dtor */
 Scene::Scene() {
 	// Default settings
 	freeCam = false;
 	scr_width = 0.f;
 	scr_height = 0.f;
 
+	// Initialize resource manager
+	rman = std::make_shared<ResourceManager>();
+
 	// Add default Camera
 	std::string camera_name = "Camera-00";
 	AddCamera(camera_name, glm::vec3(0.f, 7.f, 15.f), -45.f);
-	current_camera = cameraCollection[camera_name];
+	current_camera = std::dynamic_pointer_cast<Camera>(rman->GetResourceByName(camera_name));
 	current_camera->SetCameraSpeed(20.f);
 
 	// Create Bullet Dynamic World and it's configuration dependencies
@@ -31,180 +34,91 @@ Scene::~Scene(){
 	delete broadphaseInterface;
 	delete dispatcher;
 	delete collisionConfiguration;
-
-	// Delete rest of the private members
-	for(auto & actor : actorCollection)
-		delete(actor.second);
-
-	for(auto & shader : shaderProgramCollection)
-		delete(shader.second);
-
-	for(auto & model : modelCollection)
-		delete(model.second);
-
-	for(auto & cam : cameraCollection)
-		delete(cam.second);
 }
-// -  END Constructors & Destructors
-
-// - Public Methods
-void Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float pith, float yaw, float camera_sensitivity, float camera_speed){
-	cameraCollection[camera_name] = new Camera(camera_name, camera_position, pith, yaw, camera_sensitivity, camera_speed);
-}
-
-void Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){
-	// Check first if given ShaderProgram doesn't exist yet in the collection
-
-	// search for the same name
-	auto it = shaderProgramCollection.find(shader_name);
-	if(it != shaderProgramCollection.end()) return;
-
-	ShaderProgram * shader = new ShaderProgram(vertex_path.c_str(), fragment_path.c_str());
-
-	// search for the same ShaderProgram by shader's source paths
-	it=shaderProgramCollection.begin();
-	while(it!=shaderProgramCollection.end()) {
-		// If there is already ShaderProgram with existing Vertex and Fragment shaders, save it under the new name
-		if(		(shader->GetVertexPath() == it->second->GetVertexPath()) &&
-				(shader->GetFragmentPaht() == it->second->GetFragmentPaht())) {
-			shaderProgramCollection[shader_name] = it->second;
-			return;
-		}
-		it++;
+/* Ctor & Dtor */
+/* Public Methods */
+std::string Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float pith, float yaw, float camera_sensitivity, float camera_speed){
+	if(! rman->AddResource(std::make_shared<Camera>(camera_name, camera_position, pith, yaw, camera_sensitivity, camera_speed))) {
+		std::cout << "CGL::WARNING::SCENE::ADDCAMERA() Camera with name " << camera_name << " is already present in the ResourceManager";
+		return NULL;
 	}
-
-	// add to the collection
-	shaderProgramCollection[shader_name] = shader;
+	return camera_name;
 }
 
-void Scene::AddModel(std::string model_name, std::string model_path){
-	// Check first if given Model doesn't exist yet in the collection
-
-	// Search for the same name
-	auto it = modelCollection.find(model_name);
-	if(it != modelCollection.end()) return;
-
-	Model * model = new Model(model_path.c_str());
-
-	// Search for the same Model by directory
-	it=modelCollection.begin();
-	while(it!=modelCollection.end()){
-		// If Model already exist, make this Model accessible under the new name
-		if(model->GetDirectory() == it->second->GetDirectory()) {
-			modelCollection[model_name] = it->second;
-			return;
-		}
-		it++;
+std::string Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){
+	if(! rman->AddResource(std::make_shared<ShaderProgram>(shader_name, vertex_path.c_str(), fragment_path.c_str()))) {
+		std::cout << "CGL::WARNING::SCENE::ADDCSHADERPROGRAM() ShaderProgram with name " << shader_name << " is already present in the ResourceManager";
+		return NULL;
 	}
-
-	// add to the collection
-	modelCollection[model_name] = model;
+	return shader_name;
 }
 
-std::string Scene::AddActor(
-		std::string model_name,
-		std::string shaderProgram_name,
-		Shape shape,
-		btScalar mass,
-		glm::mat4 model_matrix,
-		bool isTransparent)
-{
+std::string Scene::AddModel(std::string model_name, std::string model_path){
+	if(! rman->AddResource(std::make_shared<Model>(model_name, model_path.c_str()))) {
+		std::cout << "CGL::WARNING::SCENE::ADDMODEL() Model with name " << model_name << " is already present in the ResourceManager";
+		return NULL;
+	}
+	return model_name;
+}
+
+std::string Scene::AddPrimitivePlane(std::string body_name, glm::mat4 modelMatrix, btVector3 planeNormal, btScalar planeConstatnt) {
+	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::PLANE))) {
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEPLANE() Primitive with name " << body_name << " is already present in the ResourceManager";
+		return NULL;
+	}
+	// Setup PrimitiveShape Plane
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	shape->SetupPlane(dynamicWorld, modelMatrix, planeNormal, planeConstatnt);
+	return body_name;
+}
+
+std::string Scene::AddPrimitiveBox(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btVector3 boxDimensions) {
+	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::BOX))) {
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEBOX() Primitive with name " << body_name << " is already present in the ResourceManager";
+		return NULL;
+	}
+	// Setup PrimitiveShape Box
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	shape->SetupBox(dynamicWorld, modelMatrix, mass, boxDimensions);
+	return body_name;
+}
+
+std::string Scene::AddPrimitiveSphere(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btScalar sphereRadius) {
+	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::SPHERE))) {
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITVESPHERE() Primitive with name " << body_name << " is already present in the ResourceManager";
+		return NULL;
+	}
+	// Setup PrimitiveShape Sphere
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	shape->SetupSpeher(dynamicWorld, modelMatrix, mass, sphereRadius);
+	return body_name;
+}
+
+std::string Scene::AddActor(std::string actor_name, std::string model_name, std::string shaderProgram_name, std::string primitiveShape_name, bool isTransparent) {
 	/*
-	 * Search if there are model_name and shaderProgram_name
-	 * present in the collections
+	 * Search if there are model_name, shaderProgram_name
+	 * and primitiveShape_name present in the ResourceManager
 	 */
 	// Model search
-	auto mit = modelCollection.find(model_name);
-	if(mit == modelCollection.end()){
-#ifdef _DEBUG
-		std::cout << "CGL::ERROR::SCENE No \"" << model_name << "\" Model found in the scene\n";
-#endif //_DEBUG
-		return std::string("");
-	}
+	std::shared_ptr<Model> model = getModel(model_name); if(model == NULL) return NULL;
 
 	// ShaderProgram search
-	auto spit = shaderProgramCollection.find(shaderProgram_name);
-	if(spit == shaderProgramCollection.end()){
-#ifdef _DEBUG
-		std::cout << "CGL::ERROR::SCENE No \"" << shaderProgram_name << "\" ShaderProgram found in the Scene\n";
-#endif
-		return std::string("");
+	std::shared_ptr<ShaderProgram> shader = getShaderProgram(shaderProgram_name); if(shader == NULL) return NULL;
+
+	// PrimitiveShape search
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(primitiveShape_name); if(shape == NULL) return NULL;
+
+	// Add Actor to the ResourceManager
+	if(! rman->AddResource(std::make_shared<Actor>(actor_name, shader, model, shape, isTransparent))) {
+		std::cout << "CGL::WARNING::SCENE::ADDACTOR() Actor with name " << actor_name << " is already present in the ResourceManager\n";
+		return NULL;
 	}
-
-	/*
-	 * If both are present, then create a new ptr to Actor,
-	 * generate a name and put it into collection
-	 */
-	// create a rigid body and add it to the Dynamic World; also store collision shape in the actor
-	// Bullet shape
-	// TODO Make it possible to choose shape easily
-	btCollisionShape * bulletShape;
-	switch (shape) {
-		case Shape::BOX:
-			bulletShape = new btBoxShape(btVector3(1.f, 1.f, 1.f));
-			break;
-		case Shape::PLANE:
-			bulletShape = new btStaticPlaneShape(btVector3(0.f, 1.f, 0.f), 0.f);
-			break;
-		case Shape::SPHERE:
-			bulletShape = new btSphereShape(1.f);
-			break;
-	}
-
-	// Bullet initial model transformation
-	btTransform transform;
-	transform.setFromOpenGLMatrix(glm::value_ptr(model_matrix));
-
-	// Bullet rigid body dynamics
-	btVector3 localInertia(0.f, 0.f, 0.f);
-	if(mass!=0.f)
-		bulletShape->calculateLocalInertia(mass, localInertia);
-
-	// Bullet motionstate
-	btDefaultMotionState * motionState = new btDefaultMotionState(transform);
-
-	// Bullet rigid body
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, bulletShape, localInertia);
-	btRigidBody * body = new btRigidBody(rbInfo);
-
-	// Add teh body to teh dynamic world
-	dynamicWorld->addRigidBody(body);
-
-	/*
-	 * store everything what is needed in the actor
-	 * especially set it's ShaderProgram, Model and the rootScene
-	 */
-	Actor * actor = new Actor(this, spit->second, mit->second, body, isTransparent);
-
-	/*
-	 * Name:
- 	 * Iterate over actor collection, and search for how
- 	 * many actors has the same model. Then modify actor_name
- 	 * so it has another number with regard to how many actors
- 	 * with the same model there are.
- 	 * For example: if there are already 3 actors with model "box"
- 	 * then change actor_name from "box" to "box-3" (counting from 0)
-	 */
-	std::string actor_name = mit->first;
-	unsigned int number = 0;
-	for(auto actorElement : actorCollection)
-		if(actorElement.second->GetModelPtr() == actor->GetModelPtr())
-			number++;
-	actor_name = actor_name+"-"+std::to_string(number);
-	actor->SetActorName(actor_name);
-
-	// add Actor to the collection
-	actorCollection[actor_name] = actor;
-
 	return actor_name;
-} /* Scene::AddActio(...) */
+} /* Scene::AddActor(...) */
 
 void Scene::DelActor(std::string actorName) {
-	auto it = actorCollection.find(actorName);
-	if(it != actorCollection.end()) {
-		delete(it->second);
-		actorCollection.erase(it);
-	}
+	std::vector<std::string> names; names.push_back(actorName);
+	rman->DeleteResourcesByNames(names);
 } /* Scene::DelActor(actorName) */
 
 void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool freeCam) {
@@ -222,75 +136,69 @@ void Scene::RunScene(GLFWwindow* window, float deltaTime, bool freeze, bool free
 }
 
 void Scene::SetActorLinearVelocity(std::string actor_name, glm::vec3 direction, float value) {
-	auto it = actorCollection.find(actor_name);
-	if(it != actorCollection.end())
-		it->second->SetLinearVelocity(direction, value);
+	auto actor = getActor(actor_name);
+	if(actor != NULL) actor->SetLinearVelocity(direction, value);
 }
 
-// -- Getters
-std::vector<std::string> Scene::GetShaderProgramCollectionNames() const {
+std::vector<std::string> Scene::GetCollectionNames(Type type) const {
+	std::vector<std::shared_ptr<Resource>> resources = rman->GetAllResourcesByType(type);
 	std::vector<std::string> names;
-	auto it = shaderProgramCollection.begin();
-	while(it != shaderProgramCollection.end()) {
-		names.push_back(it->first);
-		it++;
-	}
+	for(auto & r : resources)
+		names.push_back(r->GetName());
 	return names;
 }
 
-std::vector<std::string> Scene::GetModelCollectionNames() const {
-	std::vector<std::string> names;
-	auto it = modelCollection.begin();
-	while(it != modelCollection.end()) {
-		names.push_back(it->first);
-		it++;
+glm::vec3 Scene::GetCameraPosition() const {
+	return current_camera->GetPosition();
+}
+
+glm::vec3 Scene::GetCameraFront() const {
+	return current_camera->GetFront();
+}
+
+/* Public Methods */
+/* Private Methods */
+std::shared_ptr<ShaderProgram> Scene::getShaderProgram(std::string shaderProgram_name) {
+	std::shared_ptr<ShaderProgram> shader = std::dynamic_pointer_cast<ShaderProgram>(rman->GetResourceByName(shaderProgram_name));
+	if(shader == nullptr){
+		std::cout << "CGL::ERROR::SCENE::GETSHADER() No " << shaderProgram_name << " ShaderProgram found in the ResourceManager\n";
+		return NULL;
 	}
-	return names;
+	return shader;
 }
-
-std::vector<std::string> Scene::GetActorCollectionNames() const {
-	std::vector<std::string> names;
-	auto it = actorCollection.begin();
-	while(it != actorCollection.end()) {
-		names.push_back(it->first);
-		it++;
+std::shared_ptr<PrimitiveShape> Scene::getPrimitiveShape(std::string primitiveShape_name) {
+	std::shared_ptr<PrimitiveShape> shape = std::dynamic_pointer_cast<PrimitiveShape>(rman->GetResourceByName(primitiveShape_name));
+	if(shape == nullptr){
+		std::cout << "CGL::ERROR::SCENE::ADDACTOR() No " << primitiveShape_name << " PrimitiveShape found in the ResourceManager\n";
+		return NULL;
 	}
-	return names;
+	return shape;
 }
-
-std::vector<std::string> Scene::GetCameraCollectionNames() const {
-	std::vector<std::string> names;
-	auto it = cameraCollection.begin();
-	while(it != cameraCollection.end()){
-		names.push_back(it->first);
-		it++;
+std::shared_ptr<Model> Scene::getModel(std::string model_name) {
+	std::shared_ptr<Model> model = std::dynamic_pointer_cast<Model>(rman->GetResourceByName(model_name));
+	if(model == nullptr){
+		std::cout << "CGL::ERROR::SCENE::GETMODEL() No " << model_name << " Model found in the ResourceManager\n";
+		return NULL;
 	}
-	return names;
+	return model;
+}
+std::shared_ptr<Camera> Scene::getCamera(std::string camera_name) {
+	std::shared_ptr<Camera> camera = std::dynamic_pointer_cast<Camera>(rman->GetResourceByName(camera_name));
+	if(camera == nullptr){
+		std::cout << "CGL::ERROR::SCENE::GETCAMERA() No " << camera_name << " Model found in the ResourceManager\n";
+		return NULL;
+	}
+	return camera;
+}
+std::shared_ptr<Actor> Scene::getActor(std::string actor_name) {
+	std::shared_ptr<Actor> actor = std::dynamic_pointer_cast<Actor>(rman->GetResourceByName(actor_name));
+	if(actor == nullptr){
+		std::cout << "CGL::ERROR::SCENE::GETACTOR() No " << actor_name << " Actor found in the ResourceManager\n";
+		return NULL;
+	}
+	return actor;
 }
 
-ShaderProgram * Scene::GetShaderProgramPtr(std::string shaderProgramName) const {
-	auto it = shaderProgramCollection.find(shaderProgramName);
-	if(it == shaderProgramCollection.end()) return nullptr;
-	return it->second;
-}
-
-Model * Scene::GetModelPtr(std::string modelName) const {
-	auto it = modelCollection.find(modelName);
-	if(it == modelCollection.end()) return nullptr;
-	return it->second;
-}
-
-glm::vec3 Scene::GetCameraPosition(std::string camera_name) const {
-	return cameraCollection.find(camera_name)->second->GetPosition();
-}
-
-glm::vec3 Scene::GetCameraFront(std::string camera_name) const {
-	return cameraCollection.find(camera_name)->second->GetFront();
-}
-// -- END Getters
-// - END Public Methods
-
-// - Private Methods
 void Scene::updateSceneParameters(GLFWwindow* window) {
 	// update scr_width and scr_height fields
 	int width, height;
@@ -317,10 +225,10 @@ void Scene::draw() {
 	glm::mat4 viewMatrix = current_camera->GetViewMatrix();
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.f), scr_width/scr_height, .1f, 100.f);
 
-	// Iterator over all objects and render them  (if freeze then with physics)
-	for(auto & actor : actorCollection)
-		actor.second->Draw(viewMatrix, projectionMatrix);
+	// Iterator over all Actor type Resources and render them
+	std::vector<std::shared_ptr<Resource>> resources = rman->GetAllResourcesByType(Type::ACTOR);
+	for(auto & r : resources)
+		std::dynamic_pointer_cast<Actor>(r)->Draw(viewMatrix, projectionMatrix);
 }
-// - END Private Methods
-
+/* Private Methods */
 } /* namespace CGL */
