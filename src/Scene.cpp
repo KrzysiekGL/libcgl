@@ -39,57 +39,57 @@ Scene::~Scene(){
 /* Public Methods */
 std::string Scene::AddCamera(std::string camera_name, glm::vec3 camera_position, float pith, float yaw, float camera_sensitivity, float camera_speed){
 	if(! rman->AddResource(std::make_shared<Camera>(camera_name, camera_position, pith, yaw, camera_sensitivity, camera_speed))) {
-		std::cout << "CGL::WARNING::SCENE::ADDCAMERA() Camera with name " << camera_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDCAMERA() Camera with name " << camera_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	return camera_name;
 }
 
 std::string Scene::AddShaderProgram(std::string shader_name, std::string vertex_path, std::string fragment_path){
 	if(! rman->AddResource(std::make_shared<ShaderProgram>(shader_name, vertex_path.c_str(), fragment_path.c_str()))) {
-		std::cout << "CGL::WARNING::SCENE::ADDCSHADERPROGRAM() ShaderProgram with name " << shader_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDCSHADERPROGRAM() ShaderProgram with name " << shader_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	return shader_name;
 }
 
 std::string Scene::AddModel(std::string model_name, std::string model_path){
 	if(! rman->AddResource(std::make_shared<Model>(model_name, model_path.c_str()))) {
-		std::cout << "CGL::WARNING::SCENE::ADDMODEL() Model with name " << model_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDMODEL() Model with name " << model_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	return model_name;
 }
 
 std::string Scene::AddPrimitivePlane(std::string body_name, glm::mat4 modelMatrix, btVector3 planeNormal, btScalar planeConstatnt) {
 	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::PLANE))) {
-		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEPLANE() Primitive with name " << body_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEPLANE() Primitive with name " << body_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	// Setup PrimitiveShape Plane
-	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return std::string();
 	shape->SetupPlane(dynamicWorld, modelMatrix, planeNormal, planeConstatnt);
 	return body_name;
 }
 
 std::string Scene::AddPrimitiveBox(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btVector3 boxDimensions) {
 	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::BOX))) {
-		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEBOX() Primitive with name " << body_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITIVEBOX() Primitive with name " << body_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	// Setup PrimitiveShape Box
-	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return std::string();
 	shape->SetupBox(dynamicWorld, modelMatrix, mass, boxDimensions);
 	return body_name;
 }
 
 std::string Scene::AddPrimitiveSphere(std::string body_name, glm::mat4 modelMatrix, btScalar mass, btScalar sphereRadius) {
 	if(! rman->AddResource(std::make_shared<PrimitiveShape>(body_name, Shape::SPHERE))) {
-		std::cout << "CGL::WARNING::SCENE::ADDPRIMITVESPHERE() Primitive with name " << body_name << " is already present in the ResourceManager";
-		return NULL;
+		std::cout << "CGL::WARNING::SCENE::ADDPRIMITVESPHERE() Primitive with name " << body_name << " is already present in the ResourceManager\n";
+		return std::string();
 	}
 	// Setup PrimitiveShape Sphere
-	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return NULL;
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(body_name); if(shape == NULL) return std::string();
 	shape->SetupSpeher(dynamicWorld, modelMatrix, mass, sphereRadius);
 	return body_name;
 }
@@ -100,18 +100,18 @@ std::string Scene::AddActor(std::string actor_name, std::string model_name, std:
 	 * and primitiveShape_name present in the ResourceManager
 	 */
 	// Model search
-	std::shared_ptr<Model> model = getModel(model_name); if(model == NULL) return NULL;
+	std::shared_ptr<Model> model = getModel(model_name); if(model == NULL) return std::string();
 
 	// ShaderProgram search
-	std::shared_ptr<ShaderProgram> shader = getShaderProgram(shaderProgram_name); if(shader == NULL) return NULL;
+	std::shared_ptr<ShaderProgram> shader = getShaderProgram(shaderProgram_name); if(shader == NULL) return std::string();
 
 	// PrimitiveShape search
-	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(primitiveShape_name); if(shape == NULL) return NULL;
+	std::shared_ptr<PrimitiveShape> shape = getPrimitiveShape(primitiveShape_name); if(shape == NULL) return std::string();
 
 	// Add Actor to the ResourceManager
 	if(! rman->AddResource(std::make_shared<Actor>(actor_name, shader, model, shape, isTransparent))) {
 		std::cout << "CGL::WARNING::SCENE::ADDACTOR() Actor with name " << actor_name << " is already present in the ResourceManager\n";
-		return NULL;
+		return std::string();
 	}
 	return actor_name;
 } /* Scene::AddActor(...) */
