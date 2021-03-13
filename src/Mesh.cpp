@@ -10,8 +10,6 @@ namespace CGL {
 
 // - Public Methods
 	void Mesh::Draw(ShaderProgram * shader) {
-		shader->Use();
-
 		unsigned int diffuseNr = 1;
 		unsigned int specularNr = 1;
 		unsigned int normalNr = 1;

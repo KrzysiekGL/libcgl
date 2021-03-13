@@ -31,6 +31,7 @@ void Actor::Draw(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	glm::mat4 modelMatrix = shape->GetModelMatrix();
 
 	// Render Actor
+	shaderProgram->Use();
 	shaderProgram->SetUniformMatrix4f("model", modelMatrix);
 	shaderProgram->SetUniformMatrix4f("view", viewMatrix);
 	shaderProgram->SetUniformMatrix4f("projection", projectionMatrix);
