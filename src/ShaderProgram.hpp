@@ -9,7 +9,7 @@
 #ifndef SHADERHPP
 #define SHADERHPP
 
-#include "Resource.h"
+#include "Resource.hpp"
 
 #include <GL/glew.h>
 

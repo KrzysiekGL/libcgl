@@ -11,9 +11,9 @@
 #ifndef MODELH
 #define MODELH
 
-#include "Resource.h"
-#include "ShaderProgram.h"
-#include "Mesh.h"
+#include "Resource.hpp"
+#include "ShaderProgram.hpp"
+#include "Mesh.hpp"
 
 #include <assimp/config.h>
 #include <assimp/Importer.hpp>

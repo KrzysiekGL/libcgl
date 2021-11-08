@@ -1,4 +1,4 @@
-#include "PrimitiveShape.h"
+#include "PrimitiveShape.hpp"
 
 namespace CGL {
 /* Ctor & Dtor */

@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "ShaderProgram.h"
+#include "ShaderProgram.hpp"
 
 namespace CGL {
 

@@ -1,5 +1,5 @@
-#include "Actor.h"
-#include "Scene.h"
+#include "Actor.hpp"
+#include "Scene.hpp"
 
 namespace CGL {
 

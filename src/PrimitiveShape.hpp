@@ -6,7 +6,7 @@
 #ifndef PRIMITIVESHAPE_H_
 #define PRIMITIVESHAPE_H_
 
-#include "Resource.h"
+#include "Resource.hpp"
 
 #include <btBulletDynamicsCommon.h>
 
