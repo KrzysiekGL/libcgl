@@ -1,4 +1,4 @@
-#include "ShaderProgram.pph"
+#include "ShaderProgram.hpp"
 namespace CGL {
 
 /* Ctor & Dtor */
