@@ -5,11 +5,11 @@
 #ifndef RESOURCEMANAGER_H_
 #define RESOURCEMANAGER_H_
 
-#include "Resource.h"
-#include "ShaderProgram.h"
-#include "Model.h"
-#include "Actor.h"
-#include "Camera.h"
+#include "Resource.hpp"
+#include "ShaderProgram.hpp"
+#include "Model.hpp"
+#include "Actor.hpp"
+#include "Camera.hpp"
 
 #include <map>
 #include <string>

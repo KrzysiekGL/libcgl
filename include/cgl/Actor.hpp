@@ -1,10 +1,10 @@
 #ifndef ACTOR_H_
 #define ACTOR_H_
 
-#include "Resource.h"
-#include "ShaderProgram.h"
-#include "Model.h"
-#include "PrimitiveShape.h"
+#include "Resource.hpp"
+#include "ShaderProgram.hpp"
+#include "Model.hpp"
+#include "PrimitiveShape.hpp"
 
 #include <glm/glm.hpp>
 

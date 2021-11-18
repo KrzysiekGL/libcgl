@@ -27,10 +27,10 @@ set_target_properties(cgl
 
 target_include_directories(cgl
 	PUBLIC
-		$<INSTALL_INTERFACE:inlcude>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inlcude>
+	$<INSTALL_INTERFACE:inlcude>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inlcude>
 	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_compile_options(cgl PRIVATE -Wall -Werror -O3)
@@ -49,23 +49,23 @@ find_library(SOIL2 soil2)
 
 target_link_libraries(cgl
 	PRIVATE
-		glfw
-		OpenGL::GL
-		GLEW::GLEW
-		glm
-		assimp
-		${BULLET_LIBRARIES}
-		${SOIL2}
+	glfw
+	OpenGL::GL
+	GLEW::GLEW
+	glm
+	assimp
+	${BULLET_LIBRARIES}
+	${SOIL2}
 )
 
 target_include_directories(cgl
 	PRIVATE
-		${OPENGL_INCLUDE_DIR}
-		${GLEW_INCLUDE_DIR}
-		${GLFW3_INCLUDE_DIR}
-		${GLM_INCLUDE_DIR}
-		${ASSIMP_INCLUDE_DIR}
-		${BULLET_INCLUDE_DIR}
-  		/usr/local/include
+	${OPENGL_INCLUDE_DIR}
+	${GLEW_INCLUDE_DIR}
+	${GLFW3_INCLUDE_DIR}
+	${GLM_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIR}
+	${BULLET_INCLUDE_DIR}
+  	/usr/local/include
 )
 

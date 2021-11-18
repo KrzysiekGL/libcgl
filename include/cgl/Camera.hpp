@@ -8,7 +8,7 @@
 #ifndef CAMERAH
 #define CAMERAH
 
-#include "Resource.h"
+#include "Resource.hpp"
 
 #include <GLFW/glfw3.h>
 

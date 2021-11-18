@@ -18,11 +18,11 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include "ResourceManager.h"
-#include "ShaderProgram.h"
-#include "Camera.h"
-#include "Model.h"
-#include "Actor.h"
+#include "ResourceManager.hpp"
+#include "ShaderProgram.hpp"
+#include "Camera.hpp"
+#include "Model.hpp"
+#include "Actor.hpp"
 
 #include <GLFW/glfw3.h>
 
