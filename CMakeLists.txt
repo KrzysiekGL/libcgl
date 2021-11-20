@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.10)
 
-project(cgl VERSION 0.3 LANGUAGES CXX)
+project(cgl VERSION 0.3)
 
-set(SRCS
+add_library(cgl STATIC
 	src/Actor.cpp
 	src/Camera.cpp
 	src/Mesh.cpp
@@ -12,30 +12,23 @@ set(SRCS
 	src/ResourceManager.cpp
 	src/Scene.cpp
 	src/ShaderProgram.cpp
-)
+	)
 
-add_library(cgl
-	STATIC
-   	${SRCS}
-)
+target_compile_options(cgl PRIVATE -Wall -Werror -O3)
+target_compile_features(cgl PRIVATE cxx_std_20)
 
 set_target_properties(cgl
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"  # STATIC
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"  # SHARED
-)
+	)
 
 target_include_directories(cgl
-	PUBLIC
-	$<INSTALL_INTERFACE:inlcude>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inlcude>
 	PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_compile_options(cgl PRIVATE -Wall -Werror -O3)
-
-target_compile_features(cgl PRIVATE cxx_std_20)
+	INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	)
 
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
@@ -48,11 +41,10 @@ find_package(Bullet REQUIRED)
 find_library(SOIL2 soil2)
 
 target_link_libraries(cgl
-	PRIVATE
+	INTERFACE
 	glfw
 	OpenGL::GL
 	GLEW::GLEW
-	glm
 	assimp
 	${BULLET_LIBRARIES}
 	${SOIL2}
@@ -67,5 +59,7 @@ target_include_directories(cgl
 	${ASSIMP_INCLUDE_DIR}
 	${BULLET_INCLUDE_DIR}
   	/usr/local/include
+	INTERFACE
+	${BULLET_INCLUDE_DIR}
 )
 

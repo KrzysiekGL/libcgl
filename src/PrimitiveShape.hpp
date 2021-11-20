@@ -8,7 +8,7 @@
 
 #include "Resource.hpp"
 
-#include <btBulletDynamicsCommon.h>
+#include <bullet/btBulletDynamicsCommon.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
